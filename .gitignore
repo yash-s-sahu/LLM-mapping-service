@@ -6,3 +6,4 @@ venv/bin/*
 logs/*
 logs
 logs/*.log
+.env
