@@ -1,0 +1,437 @@
+**Prompt for Generating JSON Mapping Files for XML to JSON Transformation**
+
+You are an expert in data transformation and mapping between different formats. Your task is to generate a JSON-based mapping file that defines how to transform an input XML document into a specific JSON output format. This mapping file will be used by a data conversion tool (e.g., B2B Message Converter) to process XML data into a structured JSON payload for downstream processing.
+
+**Context and Objective:**
+- The input is an XML document containing transaction header data, nested elements (e.g., lines, schedules, addresses), attributes, and possibly namespaces.
+- The desired output is a well-structured JSON document, extracting and mapping key fields and values from the source XML into the target JSON schema.
+- The mapping file must adhere to the documented mapping structure, defining variables for key XML paths, specifying direct mappings for simple fields, using templates for nested or array-based structures, and including conditional rendering logic to handle optional data or business rules.
+
+**Input/Output Provided as Uploaded Files or Inline Blocks (No External Links):**
+- The input XML payload, XSL stylesheet and target JSON sample will be provided as uploaded files or inline file blocks (never as external links).
+- Use attached files to derive:
+  - Top-level and nested field structure (scalars, objects, arrays) for the JSON target.
+  - Root element paths and relevant XML namespaces.
+  - Repeating arrays and their item structure.
+  - Field-level mappings, data types (for JSON), and render rules.
+- If any fields/structures are ambiguous or require clarification, add a "comment" property on the relevant mapping node describing the assumption.
+
+**XSL Stylesheets as Mapping Guidance (REQUIRED)**
+- When provided, you will have **three inputs**: input XML, target JSON sample, and **one or more XSLT stylesheets (typically three)** that perform related transformations (usually XML→XML or XML→JSON at different levels).
+- For each stylesheet, use it to infer authoritative field-level mapping: which source XML nodes (or attributes) should map to which fields in the output JSON, array boundaries, and application of conditional logic. Your mapping must honor *the combined structural logic* of all stylesheets and account for any logic/definitions that span multiple XSLT inputs.
+- If the same template, logic, or match is repeated across the XSLTs, treat it as a candidate for template extraction (see templates[] rules below).
+- Whenever possible, combine knowledge gained from multiple XSLT inputs to build the most robust mapping: if an array, object, or fragment logic is defined in more than one stylesheet, ensure the mapping template reflects all occurrences.
+
+**Templates for Reusable Mapping Nodes (MANDATORY AND RECOMMENDED)**
+- Detect any pattern in the XSLTs that is reused, referenced via `xsl:call-template`, `apply-templates`, or that maps a repeated subtree, array item, or complex object structure.
+- For every such subtree or reusable logic, create a mapping node within `templates[]` using a unique `templateId`.
+    - Examples:
+        - Any named XSLT template mapping a child-array object, such as `<xsl:template name="LineItem">...</xsl:template>`, must be reflected as a mapping template.
+        - XSL fragments producing the same group of fields in multiple locations are mapping template candidates.
+        - If an array item structure is defined by a for-each/apply-templates and used with call-template, create a template mapping and reference it.
+    - For each mapping node or array that reuses logic (as above), set `templateId` and ensure children use `templateId` instead of duplicating.
+- **The mapping file must NEVER leave templates[] empty if there are *any* reusable logic fragments or XSLT named templates.** If templates are possible, the mapping must extract and use them.
+
+**How to Identify Templates:**
+1. Any XSLT named template implementing output for a subtree, array, or group of fields.
+2. Repeated use of identical mapping or value logic (same XML→JSON logic in multiple locations).
+3. Fragments referenced with `call-template` or `apply-templates`.
+4. For-each over identical child nodes processed by same XSL/logic.
+
+**Your output mapping file will be rejected as incomplete if templates[] is empty and there is evidence of duplicate or reusable logic in the XSLTs.**
+
+- Arrays: Each xsl:for-each over a repeating XML node implies an array field in the target JSON—ensure you map this as an Array type mapping with the appropriate variable binding.
+
+- Scan the XSLT for the following constructs and use them to inform your mapping:
+  - xsl:template match="...": Establishes the source context for mapping or extraction of child/nested items.
+  - xsl:for-each select="...": Indicates repetition; use Array mapping for the corresponding field in the JSON output, and set sourcePath accordingly. The variable for this array must be declared.
+  - xsl:value-of select="...": Identifies the value from source XML to populate a JSON primitive field (use Simple mappings).
+  - xsl:choose, xsl:when, xsl:otherwise: Indicates conditional logic; translate these into render or function expressions as appropriate in your mapping file.
+  - xsl:attribute/@name (if mapping to an object property instead of an XML attribute): Output as a JSON field.
+  - xsl:call-template and named templates: Reusable logic; extract these subtrees as mapping templates (in templates[]) where applicable.
+- Arrays: Each xsl:for-each over a repeating XML node implies an array field in the target JSON—ensure you map this as an Array type mapping with the appropriate variable binding.
+- Conditions: Any conditional branches (e.g., choose/when) that affect mapping fields must be modeled via render conditions or appropriate mapping decomposition.
+- For every path, ensure sourcePath uses a precise XML path (from variables) as established by the XSLT's select expressions and matches to the desired field in the output JSON.
+- For complex objects built via nested apply-templates/call-template patterns, build out corresponding Complex/Array mappings or reusable templates.
+
+**JavaScript Functions Derived from XSL Logic (REQUIRED)**
+- Purpose: When XSL contains xsl:choose/xsl:when/xsl:otherwise (or xsl:variable with conditional logic) that determines VALUES, generate corresponding JavaScript functions in a separate `.js` file.
+- Output: Produce TWO files:
+  1) The JSON mapping file (per this prompt)
+  2) A separate JavaScript functions file (e.g., `mapping_functions.js` or `<mapping_name>_functions.js`) containing all derived functions
+- When to generate functions:
+  - Conditional logic determines a value for a JSON field (element content or attribute value equivalents)
+  - The same conditional pattern appears multiple times (reuse)
+  - xsl:variable uses conditional logic to compute a value
+  - Do NOT create functions for node inclusion/exclusion; use render instead
+- Structure and quality:
+  - File starts with a `log(message)` helper using `GraalVM:MessageJS:<messageType>:` prefix
+  - Each function is a standalone declaration (not JSON), separated by blank lines
+  - JSDoc required: description, @param for each argument, @returns
+  - Logging required: log inputs at start; log result before return
+  - Names: descriptive camelCase (e.g., getUnitPrice, taxCheck, getVersion, convertCountryCode)
+  - Parameters: include every value referenced in the XSL condition
+  - Return: computed value from the conditional logic
+- Usage in mapping:
+  - Reference via `$functions.<functionName>(...)` in sourcePath or render
+  - Ensure all parameters are available via declared variables or other valid sources
+- functions[] array in mapping JSON:
+  - Leave empty or omit; functions live in the separate `.js` file
+- Example `.js` file sketch:
+  - `function log(message) { const js = 'GraalVM:MessageJS:<messageType>:'; console.log(js + message); }`
+  - Functions with JSDoc, logging, and return value (e.g., getVersion, getUnitPrice, taxCheck, checkProd, convertCountryCode, getOrderVersion, checkVersion)
+
+**Binding Rule: destinationPath vs. sourcePath (MANDATORY)**
+- For every mapping node:
+  - Set destinationPath to the target JSON field name/array/object per the provided JSON sample.
+  - Set sourcePath strictly from the XML input, each being an XPath or variable path (never from the JSON target).
+  - For Array mappings: destinationPath is the JSON array field name; sourcePath matches the repeating XML node per the XSLT (as seen in for-each/select).
+- Do not invent field names or guess source paths from the target structure. If uncertain, keep the node and add a "comment" explaining the ambiguity.
+
+**Exact JSON Field Naming and Data Typing (CRITICAL)**
+- destinationPath must exactly match the JSON field name (case-sensitive, including suffixes, as per the target JSON).
+- Do not normalize or infer names.
+- Ensure correct value type assignment via destinationDataType ("String", "Number", "Boolean", "Float").
+- For array items, mapped children must follow the structure established in the JSON example and any XSLT array-producing patterns.
+- If target field name cannot be confirmed, add a "comment" specifying the gap.
+
+**Completeness Requirement (REQUIRED)**
+- Produce a complete mapping: every field/object/array in the target JSON (and produced by XSLT) must have a mapping node.
+- For conditionals or ambiguous mapping, use createIfNotFound or include a "comment."
+- For arrays, enumerate and map all fields in the array item structure shown in the JSON sample and/or XSLT template logic.
+- Do not omit any nodes required by the JSON sample or constructed by XSLT logic.
+
+**No Ellipses, TODOs, or Editorial Placeholders (REQUIRED)**
+- Do not output "// ...", "...", "etc", "add X as required", or "TODO" anywhere in the mapping file.
+- Fully enumerate all fields. Ambiguous mappings require a "comment".
+
+
+**Variable Declaration and Usage Rules (REQUIRED)**
+- All $variables.<name> must appear in variables[]; never reference undeclared variables in any sourcePath.
+- rootSourcePath is an absolute XPath; sourcePath is relative to it (or another variable); data is for constants.
+- For arrays, bind the matching variable to current item, and use that for child field references (e.g., $variables.lines).
+
+**Mapping File Structure and Guidelines:**
+The mapping file must be a JSON document adhering to a specific structure with the following top-level components and rules:
+
+1. **Top-Level Structure**:
+   - **Simple JSON Nodes** (Mandatory):
+     - `sourceFormat`: Indicates the source message format (e.g., `xml`). Case-insensitive.
+     - `destinationFormat`: Indicates the destination message format (e.g., `json`). Case-insensitive.
+   - **Simple JSON Nodes** (Optional):
+     - `comment`: A non-runtime comment to explain the mapping file.
+   - **JSON Arrays** (Mandatory):
+     - `variables`: Array of variable nodes defining reusable paths or data used in mappings.
+     - `rootMappings`: Array of mapping nodes for top-level source-to-destination mappings.
+   - **JSON Arrays** (Optional):
+     - `templates`: Array of mapping nodes with unique IDs for reusable nested mappings.
+     - `functions`: Array of function nodes for custom data manipulation.
+
+2. **Terminologies**:
+   - **Simple JSON Node**: A single-level key-value pair (e.g., `"sourceFormat": "xml"`).
+   - **JSON Array**: A collection of nodes.
+   - **Complex JSON Node**: A node containing child nodes or arrays.
+   - **Variable Node**: Defines variables for paths or data.
+   - **Mapping Node**: Defines source-to-destination mapping logic.
+   - **Function Node**: Defines custom JavaScript functions for transformations.
+
+3. **Variable Node Structure**:
+   - Variables are categorized into `sourcePath` (points to XML elements), `rootSourcePath` (mandatory, points to the root XML element), `data` (fixed string).
+   - **Keys**: `name` (unique, alphanumeric, not starting with 'Ora'), `category` (one of the four types), `value` (path or data), and optional `comment`.
+   - Access syntax by category (for XML source):
+        - `sourcePath`
+            - Value: relative path anchored to another variable (typically the root), using dot notation.
+            - Access: $variables.<variableName>.<relativeXPath>
+            - Example:
+                - value: "$variables.root.Lines"
+                - access in mappings: "$variables.lines.LineNumber"
+            - IMPORTANT: **ALL variable values, sourcePath, and mapping file XPath expressions MUST OMIT any XML namespace prefixes (such as "cmk:", "n1:", "oa:"). This includes the rootSourcePath and ALL variables. Variables and mappings must always use the local element or attribute name—never a prefixed name. For example, use "Schedules" not "n1:Schedules", and "/processOutboundCollaboration/OutboundCollaboration/Document" not "/cmk:processOutboundCollaboration/cmk:OutboundCollaboration/cmk:Document".**
+        - `rootSourcePath`
+            - Value: absolute XPath from the XML document root, **without any namespace prefixes**. Prefer the deepest common ancestor under DataArea that covers the mapped payload.
+            - ** rootSourcePath can go up to and include the Document element: for eg (`/processOutboundCollaboration/OutboundCollaboration/Document`) (never stop earlier, never include a prefix, if possible).**
+            - Access (children): $variables.<variableName>.<relativeXPath>
+            - Example:
+                - value: "/processOutboundCollaboration/OutboundCollaboration/Document"
+                - access in mappings: "$variables.root.CollaborationEvent/CollaborationEventName"
+        - `data`
+            - Value: fixed string literal.
+            - Access: $variables.<variableName>
+            - Example:
+                - value: "Order accepted by supplier."
+                - access in mappings: "$variables.constAckComments
+      
+4. **Mapping Node Structure**:
+   - Types of mappings: `Simple` (single value mapping), `Complex` (nested structure), `Array` (recurring elements), and `Reference` (external data lookup via REST API).
+   - **Mandatory Keys**: `destinationPath` (target field), `type` (mapping type).
+   - **Optional Keys**: `id` (unique for templates), `sourcePath` (source data location), `destinationDataType` (e.g., `Number`, `Boolean`), `render` (conditional logic), `children` (nested mappings), `templateId` (reference to a template), and others like `comment`, `createIfNotFound`, `executionSequence`.
+   - Specific behaviors for each type:
+     - **Simple**: Direct mapping, no children.
+     - **Complex**: Nested structure with children.
+     - **Array**: Handles recurring elements, updates variable context per iteration.
+     - **Reference**: Used for external data lookup with REST API calls.
+
+5. **Function Node Structure** (mapping JSON):
+   - Functions are referenced via `$functions.<name>(...)` but should be provided in a **separate JavaScript (.js) file**, not embedded in the mapping JSON.
+   - The `functions` array in the mapping JSON should be empty or omitted unless explicitly required by the runtime; prefer external `.js` file.
+   - When present, function nodes follow: `name` (identifier), `function` (JavaScript code), optional `comment`.
+
+**Authoring Approach Using Attached Files (Step-by-Step):**
+1. Inspect XML input: Identify top-level and nested elements, attributes (especially those referenced or produced by XSL for-each/value-of).
+2. Inspect JSON output/example: Enumerate all top-level/object/array fields.
+3. Analyze the provided XSLT stylesheet:
+   - Restrict analysis to logic producing output structure relevant for the expected descendant fields (avoid envelope/metadata).
+   - Build a crosswalk matching all JSON fields (destinationPath) to their XML source (sourcePath); derive all arrays, nested objects, and conditionals from the XSLT for-each/value-of/select and named template pattern.
+   - For each field produced in XSL, pick up the field name, its value expression, and any binding/iteration structure.
+   - If any field is ambiguous or produced by complex XSL logic, add a "comment" node.
+4. Define variables for all significant XML sources, including rootSourcePath and any sourcePath or data constants needed.
+   - rootSourcePath MUST be absolute, without namespace prefixes. Prefer the deepest common ancestor of the payload. For eg(For CMK PO flows, set rootSourcePath to the Document node (e.g., `/processOutboundCollaboration/OutboundCollaboration/Document`), not to a prefixed path).
+5. Build rootMappings and templates as required.
+
+**Example Mapping File (mapping JSON):**
+```json
+{
+  "sourceFormat": "xml",
+  "destinationFormat": "json",
+  "comment": "",
+  "variables": [
+    {
+      "name": "process",
+      "value": ".",
+      "category": "sourcePath"
+    },
+    {
+      "name": "billToCustomer",
+      "value": "$variables.process.transaction/data_xml/transaction",
+      "category": "sourcePath"
+    },
+    {
+      "name": "lines",
+      "value": "$variables.process.transaction/data_xml/transaction/sub_documents/transactionLine",
+      "category": "sourcePath"
+    }
+  ],
+  "rootMappings": [
+    {
+      "destinationPath": "BuyingPartyId",
+      "sourcePath": "$variables.process.transaction/data_xml/transaction/_s_soldToPartyID_t",
+      "type": "Simple",
+      "destinationDataType": "Number"
+    },
+    {
+      "destinationPath": "FreezePriceFlag",
+      "sourcePath": "$variables.process.transaction/data_xml/transaction/freezePriceFlag_t",
+      "type": "Simple",
+      "destinationDataType": "Boolean"
+    },
+    {
+      "templateId": "billToCustomer"
+    },
+    {
+      "templateId": "lines"
+    }
+  ],
+  "templates": [
+    {
+      "id": "billToCustomer",
+      "destinationPath": "billToCustomer",
+      "sourcePath": "$variables.process.transaction/data_xml/transaction",
+      "type": "Array",
+      "children": [
+        {
+          "destinationPath": "CustomerAccountId",
+          "sourcePath": "$variables.billToCustomer._s_billToCustomerAccountID_t",
+          "type": "Simple"
+        },
+        {
+          "destinationPath": "SiteUseId",
+          "sourcePath": "$variables.billToCustomer.billToSiteUseId_t",
+          "type": "Simple"
+        }
+      ]
+    },
+    {
+      "id": "lines",
+      "destinationPath": "lines",
+      "sourcePath": "$variables.process.transaction/data_xml/transaction/sub_documents/transactionLine",
+      "type": "Array",
+      "children": [
+        {
+          "destinationPath": "ActionTypeCode",
+          "sourcePath": "$variables.lines.aBO_Delta_Action_Code_l",
+          "type": "Simple"
+        },
+        {
+          "destinationPath": "OrderedQuantity",
+          "sourcePath": "$variables.lines._price_quantity",
+          "type": "Simple",
+          "destinationDataType": "Number"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Example JavaScript Functions File (mapping_functions.js):**
+```javascript
+function log(message) {
+    const prefix = 'GraalVM:MessageJS:<messageType>:';
+    console.log(prefix + message);
+}
+
+/**
+ * Returns the version if provided; otherwise, returns the default version "1.2.047".
+ * @param {string} version - The input version string.
+ * @returns {string} - The provided version or the default version string.
+ */
+function getVersion(version) {
+    log('getVersion:version: ' + version);
+    const result = version ? version : "1.2.047";
+    log('getVersion:result: ' + result);
+    return result;
+}
+
+console.log("Function_cXML-1-2-007-OrderRequest-Out.js loaded");
+ function log(message){
+        const js = 'GraalVM:MessageJS:cXML-1-2-007-OrderRequest-Out:';
+        console.log(js+ message);
+    }
+
+
+/**
+ * Returns the version if provided; otherwise, returns the default version "1.2.047".
+ * @param {string} version - The input version string.
+ * @returns {string} - The provided version or the default version string.
+ */
+function getVersion(version) {
+    log('getVersion:version: ' + version);
+    const result = version ? version : "1.2.047";
+    log('getVersion:result: ' + result);
+    return result;
+}
+
+/**
+ * Returns an action code based on revision value and optional xpath flag.
+ * @param {string|number} revisionValue - Revision value as string or number.
+ * @param {boolean} xpathFlag - Optional flag; if true, returns revisionValue.
+ * @returns {string} - "new", "update", or revisionValue.
+ */
+function getTypeAttribute(revisionValue, xpathFlag) {
+    log('getTypeAttribute:revisionValue: ' + revisionValue + ', xpathFlag: ' + xpathFlag);
+    let result;
+    if (revisionValue === '0') {
+        result = 'new';
+    } else if (parseInt(revisionValue, 10) > 0) {
+        result = 'update';
+    //  TBD--else if (eventName === 'PurchaseOrderCanceled') {
+    //        return 'delete';
+    } else if (xpathFlag) {
+        result = revisionValue;
+    }
+    log('getTypeAttribute:result: ' + result);
+    return result;
+}
+
+/**
+ * Determines the order version based on conditions.
+ * @param {string} version - Current version.
+ * @param {string|number} Revision - Revision number.
+ * @returns {string|number} - Either the original revision or revision incremented by 1.
+ */
+function getOrderVersion(version, Revision) {
+    log('getOrderVersion:version: ' + version + ', Revision: ' + Revision);
+    let result;
+    if (version === '1.2.047' && Revision === '0') {
+        result = Revision;
+    } else  {
+        result = Revision + 1;
+    }
+    log('getOrderVersion:result: ' + result);
+    return result;
+}
+
+/**
+ * Returns the correct unit price based on event name.
+ * @param {string|number} basePrice - The original base price.
+ * @param {string|number} priceOverRide - The override price to be used if certain conditions are met.
+ * @param {string} eventName - The current event name.
+ * @returns {string|number} - The chosen unit price.
+ */
+function getUnitPrice(basePrice, priceOverRide, eventName) {
+    log('getUnitPrice:basePrice: ' + basePrice + ', priceOverRide: ' + priceOverRide + ', eventName: ' + eventName);
+    let result = (eventName === 'PurchaseOrderIssued') ? priceOverRide : basePrice;
+    log('getUnitPrice:result: ' + result);
+    return result;
+}
+
+/**
+ * Checks if the version matches "1.2.047".
+ * @param {string} version - Version string to check.
+ * @returns {boolean} - True if version is "1.2.047", else false.
+ */
+function checkVersion(version) {
+    log('checkVersion:version: ' + version);
+    let result = version === '1.2.047';
+    log('checkVersion:result: ' + result);
+    return result;
+}
+
+/**
+ * Returns taxability string based on taxable flag input.
+ * @param {string} taxableFlag - Should be 'N' (non-taxable) or other (taxable).
+ * @returns {string} - "Non-Taxable" or "Taxable".
+ */
+function taxCheck(taxableFlag) {
+    log('taxCheck:taxableFlag: ' + taxableFlag);
+    let result = taxableFlag === 'N' ? 'Non-Taxable' : 'Taxable';
+    log('taxCheck:result: ' + result);
+    return result;
+}
+
+/**
+ * Picks one of two values based on the prod flag.
+ * @param {string} prod - String 'true' or other, to select which value to return.
+ * @param {*} var1 - Value to return if prod is 'true'.
+ * @param {*} var2 - Value to return otherwise.
+ * @returns {*} - var1 or var2.
+ */
+function checkProd(prod, input1, input2) {
+    log('checkProd:prod: ' + prod + ', input1: ' + input1 + ', input2: ' + input2);
+    let result = prod === 'true' ? input1 : input2;
+    log('checkProd:result: ' + result);
+    return result;
+}
+/**
+ * Converts country code 'USA' to 'US', returns all other codes as-is.
+ * @param {string} CountryCode - The country code to convert.
+ * @returns {string} - Converted or original country code.
+ */
+function convertCountryCode(CountryCode) {
+    log('convertCountryCode:CountryCode: ' + CountryCode);
+    let result = CountryCode === 'USA' ? 'US' : CountryCode;
+    log('convertCountryCode:result: ' + result);
+    return result;
+}
+
+
+// Additional functions (e.g., getUnitPrice, taxCheck, checkProd, convertCountryCode, getOrderVersion, checkVersion) follow the same JSDoc + logging pattern.
+```
+
+**Validation Checklist (Authoring Acceptance Criteria):**
+- [ ] Top-level structure matches: xml→json
+- [ ] rootSourcePath variable present, absolute XPath **with NO XML namespace prefixes at any point**; set rootSourcePath to till `Document` element if possible
+- [ ] rootMappings includes a Complex mapping for output root, children for all fields (flat/nested/arrays) as per JSON sample/XSLT logic
+- [ ] Every JSON field (including all array elements) mapped or annotated
+- [ ] All arrays use variables declared for the underlying XML node being iterated in XSL
+- [ ] Variable usage correct and complete
+- [ ] No placeholders/ellipsis/TODO
+- [ ] Full parity with XSLT's array, conditional, template and value-of logic
+- [ ] **templates[] is used for all reusable/named logic; if the XSL has a named template, repeated array, or logic fragment, mapping must extract it into templates[] and set templateId (output is INCOMPLETE if templates[] is empty and there are candidates for templates)**
+- [ ] JavaScript functions file produced separately for value-determining XSL conditionals, with log helper, JSDoc, parameter logging, result logging, and descriptive camelCase names; mapping JSON functions[] left empty/omitted
+
+**Task Instructions:**
+Using the provided input XML, output JSON, and XSLT stylesheet, produce TWO files:
+1) A complete JSON mapping file as per the above structure
+2) A separate JavaScript functions file (.js) containing all functions derived from XSL conditional logic (value-determining choose/when/otherwise or conditional variables)
+
+The mapping file must be complete, explicit, and free of placeholders or editorial gaps. No comment strings for incomplete work.

@@ -1,0 +1,691 @@
+**Prompt for Generating JSON Mapping Files for JSON to XML Transformation**
+
+
+
+You are an expert in data transformation and mapping between different formats. Your task is to generate a JSON-based mapping file that defines how to transform an input JSON document into a specific XML output format. This mapping file will be used by a B2B Message Converter (MessageConverter.convertMessage) to process JSON data into a structured XML payload for downstream processing.
+
+**Context and Objective:**
+- The input is a JSON document containing transaction header data and nested arrays (e.g., lines, schedules, addresses).
+- The desired output is a well-formed XML document, potentially with namespaces and attributes, which extracts and maps key fields from the JSON input into the target XML schema.
+- The mapping file must adhere to the documented mapping structure, defining variables for key JSON paths, specifying direct mappings for simple fields, using templates for nested or array-based structures, and including conditional rendering logic to handle optional data or business rules.
+
+**Input/Output Provided as Uploaded Files or Inline Blocks (No External Links):**
+- The input JSON payload and target XML sample will be provided as uploaded files in this chat or as inline file blocks (no external links).
+- Use the attached files to derive:
+- Root element names and namespaces for the XML target.
+- Top-level and nested element structure (including attributes vs. elements).
+- Repeating arrays and their item structures.
+- Field-level mappings, data types (for JSON), and conditional render rules.
+- The XSL stylesheet that implements XML→XML transformation (e.g., .xsl). Use it as authoritative mapping guidance:
+- Parse xsl:template/@match, xsl:for-each/@select, xsl:value-of/@select, xsl:attribute/@name, xsl:choose/when/otherwise, and any named templates.
+- Treat all XPaths read from the XSL as “source-side” paths. Align them with the JSON fields (via variables) so the same target nodes/elements the XSL produces are created by this JSON→XML mapping.
+- Recognize that xsl:for-each over a repeating source node implies a repeating destination element; align these to JSON arrays (e.g., lines, schedules, distributions).
+- If any fields are ambiguous or require clarification, add a "comment" key on the relevant mapping node describing the assumption.
+
+**Binding Rule: destinationPath vs. sourcePath (MANDATORY)**
+- For every mapping node:
+- Derive destinationPath, hierarchy, destinationXmlAttributes, and any destinationXmlNamespace strictly from the provided output XML file (target schema).
+- Derive sourcePath values strictly from the provided input JSON file. Each sourcePath must be anchored to declared variables (e.g., $variables.root..., $variables.lines...) and must never refer to the output XML.
+- For Array mappings: destinationPath must be the repeating XML element name from the output XML; sourcePath must be the JSON array path from the input JSON.
+- Do not invent destination element names or guess source paths from the output structure. If uncertain, keep the node and add a "comment" explaining the ambiguity.
+
+**Exact XML Element Name Matching and Namespace Handling (CRITICAL)**
+- destinationPath must be the exact XML element local name from the provided output XML (case-sensitive, including suffixes like ID).
+- Do not normalize or infer names (no singular/plural changes, no case changes, do not remove suffixes like ID).
+- destinationPath must use the element’s local name only (no namespace prefixes like oa:). Apply namespaces via destinationXmlNamespace or inherit from the parent Complex node as appropriate.
+- For XML attributes, do not encode them in destinationPath. Use destinationXmlAttributes with {"name": "<attrName>", "sourcePath": "<value>"}.
+- Do not put namespace prefixes into attribute names. destinationXmlAttributes.name must be the attribute’s local name only (no oa: prefix).
+- Example correction:
+- Incorrect:
+{"type": "Simple", "destinationPath": "Revision", "sourcePath": "$variables.root.Revision"}
+- Correct (matches XML element name):
+{"type": "Simple", "destinationPath": "RevisionID", "sourcePath": "$variables.root.Revision"}
+
+**No Placeholders; Derive Element Names From Output XML (REQUIRED)**
+- Do not emit placeholder element names like "DEST.*" anywhere in the mapping file.
+- Treat elements that appear with a namespace prefix in the output XML (e.g., "oa:ID", "oa:RevisionID", "oa:PurchaseOrderLine") as real elements. For destinationPath, always use the local name only ("ID", "RevisionID", "PurchaseOrderLine"); apply the namespace via destinationXmlNamespace or inherit it from the parent Complex node.
+- If you cannot confirm an element’s exact local name from the output XML, do not invent a name and do not output a placeholder. Either:
+- omit the node and note the gap in a top-level "comment", or
+- include the node with a "comment" explaining the ambiguity and clearly mark that the exact local name must be provided, but do not use a fake placeholder name.
+
+**Using XSL Stylesheet as Mapping Guidance (REQUIRED)**
+- Purpose: You will have three inputs: input JSON, target XML sample, and an XSL that already converts source XML→target XML. Use the XSL to infer the field-level crosswalk (source XPath → destination element/attribute) and then bind JSON fields to those same target nodes. Only use XSL templates/logic that generate nodes strictly below BusinessObjectDocument/DataArea (descendants only); do not model DataArea itself. Ignore ApplicationArea and other envelope sections.
+- How to use XSL:
+- Scope: Restrict XSL analysis to logic that constructs target content strictly below DataArea (descendants only). Ignore DataArea itself and any ApplicationArea/envelope.
+- Build an XSL crosswalk table by scanning:
+- xsl:template match="...": identifies the current source context for downstream select expressions
+- xsl:for-each select="...": repeating source path → repeating destination element
+- xsl:value-of select="...": leaf source value to be written into a destination element/attribute
+- xsl:attribute name="...": attribute names to be created on the current destination element
+- xsl:choose/xsl:when/xsl:otherwise: conditional logic; translate to render or function-based conditions
+- xsl:call-template / named templates: reusable blocks → use templates in the mapping
+- Arrays:
+- Each xsl:for-each over a repeating node corresponds to an Array mapping whose destinationPath is the repeating XML element local name; sourcePath binds to the JSON array (e.g., $variables.lines, $variables.schedules).
+- Attributes:
+- Any xsl:attribute/@name creates an attribute on the current destination element. In the mapping, use destinationXmlAttributes with name = local name (no prefix), value from JSON, and apply namespaces via destinationXmlNamespace if needed.
+- Conditions:
+- Handle xsl:when or predicates by including/excluding nodes based on source data or defaults (no render directives and no functions).
+- Conditions:
+- Handle xsl:when or predicates by including/excluding nodes based on source data or defaults (no functions or render directives).
+- Namespaces:
+- Destination element local names only in destinationPath; apply namespaces using destinationXmlNamespace or inheritance. Never include prefixes in names.
+- Binding rule remains unchanged:
+- destinationPath and namespaces from the Output XML (and confirmed by XSL target construction)
+- sourcePath from the Input JSON (variables) aligned to XSL source XPaths (no placeholders; no invention)
+
+**Completeness Requirement (REQUIRED - STRICTLY ENFORCED)**
+- Produce a complete mapping: for every element and attribute constructed under the descendants of DataArea in the target XML and/or by the XSL crosswalk, include a corresponding mapping node (Simple/Complex/Array) and destinationXmlAttributes as applicable. Do not omit elements/attributes that exist in the target structure/XSL output.
+- NEVER use comment strings (// or /* */) to suggest incomplete mappings. All structures must be fully mapped.
+- NEVER leave partial mappings with comments like "// ... Other header substructures" or "// ... further nested structure". Either map the complete structure or omit it entirely (only if it doesn't exist in output XML/XSL).
+- If a target node is optional or conditional, use createIfNotFound as appropriate. If a target node cannot be bound yet due to ambiguity, include the node with a "comment" key (JSON property) describing the assumption or missing JSON field and how to resolve it. Never skip nodes silently and never use comment strings to defer mapping.
+- Deep mapping required: cover the entire nested structure for every Complex/Array subtree; do not collapse or summarize structures. Include all children and attributes at all depths. Do not use comments to suggest what should be added.
+- Array item completeness: for each Array mapping, its children must cover all fields (including attributes) of the array item structure as defined in the output XML (and/or constructed by the XSL). Map every field explicitly.
+- XSL parity: for every target node/attribute created by the XSL under DataArea, include a corresponding mapping node (1:1 alignment). If the XSL creates nodes within loops, mirror this via Array mappings and mapped children. No exceptions.
+- Coverage verification: compare the destination element dictionary (from output XML) and the XSL crosswalk against the mapping nodes; if any target element/attribute is missing, add the mapping or include a clarifying "comment" key (not a comment string). Never use comment strings to indicate missing mappings.
+- Template completeness: If templates are used, each template must be fully defined with all children, attributes, and nested structures. Never create empty templates or templates with comment suggestions.
+
+**No Ellipses, TODOs, or Editorial Placeholders (REQUIRED)**
+- Do not output comments like "// ...", "…", "etc", "add X as required", "TODO", "// ... Other header substructures", "// ... further nested structure", or any similar suggestion comments anywhere in the mapping file.
+- Do not use comments to suggest what should be added later. Either fully map the structure or omit it entirely (only if it truly doesn't exist in the output XML or XSL).
+- Fully enumerate all destination elements/attributes. If uncertain about any node, include it with a "comment" key (not a comment string) explaining the assumption; do not defer with editorial placeholders or suggestion comments.
+- Never leave empty arrays (like templates: []) with comments suggesting what should go there. Either populate the array with complete template definitions or omit the array entirely if no templates are needed.
+- Never use comment strings (// or /* */) to indicate incomplete mappings. All mappings must be complete and explicit.
+
+**Examples of FORBIDDEN patterns (DO NOT DO THIS):**
+```json
+// ❌ FORBIDDEN: Comment strings suggesting incomplete mappings
+{
+  "children": [
+    { "type": "Simple", "destinationPath": "ID", "sourcePath": "$variables.root.OrderNumber" },
+    // ... Other header substructures e.g., ShipToParty, BillToParty, etc.
+  ]
+}
+
+// ❌ FORBIDDEN: Empty templates with suggestion comments
+{
+  "templates": [
+    // Add templates here for Address, Party, UnitPrice, Distribution, etc. when a structure repeats
+  ]
+}
+
+// ❌ FORBIDDEN: Partial mappings with comment suggestions
+{
+  "children": [
+    { "type": "Simple", "destinationPath": "ID", "sourcePath": "$variables.root.OrderNumber" }
+    // ... further nested structure per schedule, Distribution template, and so on.
+  ]
+}
+```
+
+**Examples of CORRECT patterns (DO THIS INSTEAD):**
+```json
+// ✅ CORRECT: Complete mapping without comment strings
+{
+  "children": [
+    { "type": "Simple", "destinationPath": "ID", "sourcePath": "$variables.root.OrderNumber" },
+    { "type": "Simple", "destinationPath": "RevisionID", "sourcePath": "$variables.root.Revision" },
+    { "type": "Complex", "destinationPath": "ShipToParty", "children": [ /* complete structure */ ] },
+    { "type": "Complex", "destinationPath": "BillToParty", "children": [ /* complete structure */ ] }
+  ]
+}
+
+// ✅ CORRECT: Fully populated templates array
+{
+  "templates": [
+    {
+      "id": "AddressTemplate",
+      "type": "Complex",
+      "destinationPath": "Address",
+      "children": [ /* complete address structure */ ]
+    },
+    {
+      "id": "PartyTemplate",
+      "type": "Complex",
+      "destinationPath": "Party",
+      "children": [ /* complete party structure */ ]
+    }
+  ]
+}
+
+// ✅ CORRECT: Empty templates array without comments (if no templates needed)
+{
+  "templates": []
+}
+```
+
+**Templates for Reusable Mapping Nodes (MANDATORY for Repeated/Complex Structures)**
+
+- You MUST identify any subtrees/groups that repeat in the target XML structure or are constructed multiple times in the XSL (e.g., Address, Party, Schedule, Line, Tax, Distribution, Contact, UnitPrice, etc).
+- For EVERY such repeated or multi-use structure:
+  - Define ONE canonical mapping node as a template in the `templates[]` array, fully populating `children`, `attributes`, and any nested templates.
+  - The templates array is REQUIRED if any structure appears in multiple contexts.
+  - Assign a unique, descriptive `"id"` to each template (e.g., "AddressTemplate", "PartyTemplate", "ScheduleTemplate").
+  - DO NOT duplicate mapping nodes: in rootMappings or children, reference the template using `templateId` and supply any unique variable context as needed.
+- **DO NOT copy-paste** common subtrees; use templates everywhere a structure is used in more than one place.
+- Each template MUST:
+  - Be 100% complete (no partials, comment-based suggestions, or placeholder children).
+  - Adhere to all destinationPath and destinationXmlNamespace rules.
+  - Parameterize via variables as needed for reusability.
+  - Be referenced via "templateId" at all usage sites in the main mapping (`rootMappings` or nested `children`).
+- Maintain unique template ids in the mapping file and keep variable naming clear, descriptive, and non-conflicting.
+- If (and only if) NO complex or repeating structures occur, templates may be omitted as `[]`. Never leave it empty with a suggestion comment.
+
+**JavaScript Functions Derived from XSL Logic (REQUIRED)**
+- Purpose: When XSL contains xsl:choose/xsl:when/xsl:otherwise logic that determines VALUES (for element content or attribute values), generate corresponding JavaScript functions in a separate JavaScript (.js) file. These functions encapsulate the conditional logic and can be reused across the mapping.
+- Output: Generate TWO files:
+  1. The JSON mapping file (as specified in other sections)
+  2. A separate JavaScript function file (e.g., "mapping_functions.js" or "<mapping_name>_functions.js") containing all derived functions
+- When to generate functions:
+- Generate a function when XSL conditional logic (xsl:choose/xsl:when/xsl:otherwise) determines a value that will be assigned to an element's content or an attribute's value
+- Generate a function when the same conditional logic pattern appears multiple times in the XSL (for reusability)
+- Generate a function when XSL variable logic uses xsl:choose/xsl:when/xsl:otherwise to compute values
+- Do NOT generate functions for simple node inclusion/exclusion logic (use render conditions instead)
+- Function structure:
+- Each function must be a valid JavaScript function that can be executed in the GraalVM sandbox
+- Function name: Use descriptive, camelCase names that reflect the function's purpose (e.g., getUnitPrice, taxCheck, getCurrencyCode, getVersion, convertCountryCode)
+- Function parameters: Extract all input values referenced in the XSL conditional logic as function parameters
+- Function body: Translate the XSL xsl:choose/xsl:when/xsl:otherwise logic to JavaScript conditional expressions (ternary operators or if-else statements)
+- JSDoc comments: Every function MUST include a JSDoc comment block above the function declaration with:
+  - Description of what the function does
+  - @param tags for each parameter with type and description
+  - @returns tag describing the return value and type
+- Logging: Every function MUST include logging statements:
+  - At the start: log all input parameters with their values (e.g., log('getUnitPrice:basePrice: ' + basePrice + ', priceOverRide: ' + priceOverRide + ', eventName: ' + eventName);)
+  - At the end: log the result before returning (e.g., log('getUnitPrice:result: ' + result);)
+- Return value: The function must return the computed value based on the conditional logic
+- JavaScript File Structure:
+- File name: Use a descriptive name ending in .js (e.g., "mapping_functions.js", "po_mapping_functions.js")
+- File format: Plain JavaScript file with function declarations (not JSON, not embedded in mapping file)
+- Log function: The file MUST start with a log helper function that uses the GraalVM prefix pattern:
+  function log(message) {
+      const js = 'GraalVM:MessageJS:<messageType>:';
+      console.log(js + message);
+  }
+  Replace <messageType> with the appropriate message type identifier (e.g., "cXML-1-2-007-OrderRequest-Out")
+- Each function should be a standalone function declaration
+- Functions should be separated by blank lines for readability
+- Include JSDoc comments above each function (not just // comments)
+- Examples:
+- Complete JavaScript functions file example:
+  function log(message) {
+      const js = 'GraalVM:MessageJS:cXML-1-2-007-OrderRequest-Out:';
+      console.log(js + message);
+  }
+
+  /**
+   * Returns the version if provided; otherwise, returns the default version "1.2.047".
+   * @param {string} version - The input version string.
+   * @returns {string} - The provided version or the default version string.
+   */
+  function getVersion(version) {
+      log('getVersion:version: ' + version);
+      const result = version ? version : "1.2.047";
+      log('getVersion:result: ' + result);
+      return result;
+  }
+
+  /**
+   * Returns an action code based on event name.
+   * @param {string|number} basePrice - The original base price.
+   * @param {string|number} priceOverRide - The override price to be used if certain conditions are met.
+   * @param {string} eventName - The current event name.
+   * @returns {string|number} - The chosen unit price.
+   */
+  function getUnitPrice(basePrice, priceOverRide, eventName) {
+      log('getUnitPrice:basePrice: ' + basePrice + ', priceOverRide: ' + priceOverRide + ', eventName: ' + eventName);
+      let result = (eventName === 'PurchaseOrderIssued') ? priceOverRide : basePrice;
+      log('getUnitPrice:result: ' + result);
+      return result;
+  }
+
+  /**
+   * Returns taxability string based on taxable flag input.
+   * @param {string} taxableFlag - Should be 'N' (non-taxable) or other (taxable).
+   * @returns {string} - "Non-Taxable" or "Taxable".
+   */
+  function taxCheck(taxableFlag) {
+      log('taxCheck:taxableFlag: ' + taxableFlag);
+      let result = taxableFlag === 'N' ? 'Non-Taxable' : 'Taxable';
+      log('taxCheck:result: ' + result);
+      return result;
+  }
+
+  /**
+   * Picks one of two values based on the prod flag.
+   * @param {string} prod - String 'true' or other, to select which value to return.
+   * @param {*} input1 - Value to return if prod is 'true'.
+   * @param {*} input2 - Value to return otherwise.
+   * @returns {*} - input1 or input2.
+   */
+  function checkProd(prod, input1, input2) {
+      log('checkProd:prod: ' + prod + ', input1: ' + input1 + ', input2: ' + input2);
+      let result = prod === 'true' ? input1 : input2;
+      log('checkProd:result: ' + result);
+      return result;
+  }
+
+  /**
+   * Converts country code 'USA' to 'US', returns all other codes as-is.
+   * @param {string} CountryCode - The country code to convert.
+   * @returns {string} - Converted or original country code.
+   */
+  function convertCountryCode(CountryCode) {
+      log('convertCountryCode:CountryCode: ' + CountryCode);
+      let result = CountryCode === 'USA' ? 'US' : CountryCode;
+      log('convertCountryCode:result: ' + result);
+      return result;
+  }
+
+  /**
+   * Determines the order version based on conditions.
+   * @param {string} version - Current version.
+   * @param {string|number} Revision - Revision number.
+   * @returns {string|number} - Either the original revision or revision incremented by 1.
+   */
+  function getOrderVersion(version, Revision) {
+      log('getOrderVersion:version: ' + version + ', Revision: ' + Revision);
+      let result;
+      if (version === '1.2.047' && Revision === '0') {
+          result = Revision;
+      } else {
+          result = Revision + 1;
+      }
+      log('getOrderVersion:result: ' + result);
+      return result;
+  }
+
+  /**
+   * Checks if the version matches "1.2.047".
+   * @param {string} version - Version string to check.
+   * @returns {boolean} - True if version is "1.2.047", else false.
+   */
+  function checkVersion(version) {
+      log('checkVersion:version: ' + version);
+      let result = version === '1.2.047';
+      log('checkVersion:result: ' + result);
+      return result;
+  }
+
+- Using functions in mappings:
+- Reference functions in sourcePath: "$functions.<functionName>($variables.<param1>, $variables.<param2>, ...)"
+- Reference functions in destinationXmlAttributes.sourcePath: "$functions.<functionName>($variables.<param1>, $variables.<param2>, ...)"
+- Ensure all function parameters are accessible via variables or other valid source paths
+- The functions[] array in the mapping JSON file should remain empty or be omitted, as functions are provided in the separate .js file
+- Function naming:
+- Use descriptive names that clearly indicate the function's purpose
+- Follow camelCase convention
+- Avoid generic names like "getValue" or "processData"; prefer specific names like "getUnitPrice" or "determineTaxCategory"
+- Common function patterns from XSL:
+- Version/default value logic → getVersion, getDefaultValue
+- Conditional value selection based on flags → checkProd, checkVersion, checkFlag
+- Type/action determination → getTypeAttribute, getAction
+- Price/amount calculations → getUnitPrice, getTotalAmount
+- Tax-related logic → taxCheck, getTaxCategory
+- Country/currency code conversion → convertCountryCode, convertCurrencyCode
+- Order/version calculations → getOrderVersion, calculateRevision
+
+**Variable Declaration and Usage Rules (REQUIRED)**
+- Declare every variable before use: any reference like $variables.<name> must have a corresponding entry in the variables[] array.
+- Never reference undeclared variables (e.g., $variables.currentLine) in sourcePath or destinationXmlAttributes.sourcePath.
+- Arrays and current item binding:
+- The variable of category sourcePath whose "value" equals the Array mapping’s sourcePath becomes bound to the current array item during iteration.
+- Inside that Array’s children, use that same variable name to access fields (e.g., $variables.lines.LineNumber), not a new alias.
+- Do not invent aliases such as $variables.currentLine unless it is explicitly declared in variables[] and properly set; prefer reusing the matched array variable name.
+- Lint before delivery: verify that every $variables.* name used anywhere is declared in variables[].
+
+**Mapping File Structure and Guidelines:**
+The mapping file must be a JSON document adhering to the following top-level structure and rules.
+
+1. **Top-Level Structure**
+- Simple JSON Nodes (Mandatory):
+- sourceFormat: "json" (case-insensitive)
+- destinationFormat: "xml" (case-insensitive)
+- Simple JSON Nodes (Optional):
+- comment: Non-runtime notes about the mapping
+- JSON Arrays (Mandatory):
+- variables: Variable nodes used across mappings
+- rootMappings: Mapping nodes for the top-level destination structure
+- JSON Arrays (Optional):
+- templates: Reusable mapping nodes with unique id
+- functions: Local function nodes with custom JavaScript
+
+Notes:
+- For XML destination, rootMappings should typically contain exactly one root mapping node representing the root element of the output XML.
+- destinationDataType is ignored for XML outputs.
+
+2. **Terminologies**
+- Simple JSON Node: Single-level key/value (e.g., "sourceFormat": "json").
+- JSON Array: Array of JSON nodes.
+- Complex JSON Node: Node containing child nodes or arrays.
+- Variable Node: Defines reusable variables (paths, constants, expressions).
+- Mapping Node: Defines mapping logic (Simple, Complex, Array, Reference).
+- Function Node: Defines local JavaScript functions for transformations.
+
+3. **Variable Node Structure**
+Keys:
+- name: Unique among local variables; alphanumeric; must not start with "Ora"
+- category: One of sourcePath | rootSourcePath | data | expression
+- value: Semantics depend on category
+- comment: Optional
+
+Access (JSON source):
+- rootSourcePath
+- Value must be "." (dot)
+- Children access: $variables.<name>.<jsonKey>
+- sourcePath
+- Value: A path derived from another variable (often from root), like "$variables.root.PurchaseOrderLineAcknowledgments"
+- Access: $variables.<name>.<jsonKey>
+- data
+- Fixed string constant
+- Access: $variables.<name>
+- expression
+- Precomputed function-based constant
+- Access: $variables.<name>
+
+4. **Mapping Node Structure**
+Keys:
+- destinationPath (required): Destination XML element name
+- type (required): One of Simple | Complex | Array | Reference
+- sourcePath (optional; required for Simple and Array)
+- Can be any of:
+- Global variable
+- Local variable (sourcePath/rootSourcePath/data/expression)
+- Global/Message/Local function
+- Reference usage
+- DVM lookup usage
+- Hardcoded value
+- destinationXmlAttributes (XML only, optional):
+- Complex node with:
+- name: attribute local name only (no namespace prefix, e.g., "typeCode", not "oa:typeCode")
+- sourcePath: value provider (variable/function/reference/etc.)
+- If an attribute requires a namespace, apply it via destinationXmlNamespace on the appropriate Complex node (inheritance allowed); do not include prefixes in "name".
+- createIfNotFound (optional, default false): Create the destination element even when source value is absent
+- isDisabled (optional)
+- children (optional): Array of child mapping nodes (Complex/Array nesting). May include nodes with only templateId.
+- templateId (optional): Reference to a mapping node in templates
+- sourceXmlNamespace, destinationXmlNamespace (optional): XML namespace handling
+- id, comment, executionSequence (see Reference mapping below)
+- For JSON source with child REST links, support isLink, isCollection, isUnwrapped where applicable.
+
+Mapping Types:
+- Simple:
+- Single value → single destination element; no children
+- Complex:
+- Nested element with children; its children define inner structure
+- Array:
+- Repeats destination elements per item in a repeating source array
+- sourcePath must be a variable of category sourcePath or rootSourcePath pointing to the repeating array
+- The converter binds the matching variable to the current item for child mappings
+- Reference:
+- Resolves values via Oracle ADF REST GET
+- reference = { restUri: "...?q=Name={{param}}", referenceParams: [ { name, sourcePath } ] }
+- Must include executionSequence (1..100)
+- Use $references.<referenceMappingId>.<sourcePath> to access results
+
+Reference Mapping (REST API structure and constraints):
+- Use when the destination requires a value not present in the source and it must be fetched via REST.
+- reference (required): Complex node containing:
+- restUri (required):
+- Oracle ADF REST URL
+- Only HTTP GET is supported
+- Must include at least one parameter placeholder in the form {{parameterName}}
+- referenceParams (required): Array of parameter definitions with shape:
+- name (required): Must match one of the {{parameterName}} placeholders used in restUri (case-sensitive)
+- sourcePath (required): Provides the value for the parameter. Allowed sources:
+- Global variable
+- Local variable of category: sourcePath | rootSourcePath | data | expression
+- Reference usage
+- dvmLookup usage
+- Hardcoded value
+- Compose restUri with placeholders only; do not inline literal values that should come from parameters.
+
+
+6. **GraalVM-Powered Expression Evaluation (Constraints)**
+- JavaScript only, executed in a strict sandbox:
+- No host access, no class lookup, no IO, no reflection, no all-access
+- Use pure computation; do not rely on external side-effects
+- Some helpers (isNull, isNotNull, sysdate, traverseAndFetch) are evaluated in Java
+
+7. **XML-Specific Authoring Notes**
+- Root output element:
+- For XML destination, rootMappings should define exactly one mapping node for the root XML element
+- destinationXmlAttributes:
+- Use to set attributes on elements (e.g., xmlns, IDs, codes)
+- Namespaces:
+- Use destinationXmlNamespace to set target namespaces for elements where applicable
+- destinationDataType:
+- Ignored when destinationFormat is "xml" (do not rely on it)
+
+**Authoring Approach Using Attached Files (Step-by-Step):**
+1. Inspect the uploaded input JSON to identify:
+- Top-level scalar fields, nested objects, arrays, and repeating structures
+2. Inspect the uploaded target XML to identify:
+- Root element and namespaces, element vs. attribute representation, nesting and repeats
+- Build a destination element dictionary (all element local names, case-sensitive, per parent) to validate every destinationPath. Use this dictionary to prevent mistakes like "Revision" instead of "RevisionID".
+- When elements in the XML use namespace prefixes (e.g., oa:RevisionID), use only the local name ("RevisionID") for destinationPath and capture the namespace via destinationXmlNamespace (or inherit it from a parent Complex node). Do not put prefixes into destinationPath or into attribute names.
+- Do not output placeholders (e.g., DEST.*). If a destination element name cannot be confirmed from the XML, omit that node or add a "comment" describing the missing name; do not invent element names.
+2a. Analyze the XSL stylesheet:
+- Scope: Consider only XSL logic that generates nodes within the descendants of DataArea; do not model DataArea itself, ApplicationArea, or envelope nodes from XSL.
+- Extract source-side XPaths from xsl:template/@match, xsl:for-each/@select, xsl:value-of/@select, etc., and build a crosswalk to the destination element/attribute the XSL creates.
+- For each XSL-driven destination node, select the matching JSON field(s) and bind via sourcePath (through variables) to produce the same output XML structure.
+- Identify loops (xsl:for-each) → Array mappings; identify conditionals (xsl:choose/when/otherwise) → generate JavaScript functions for value determination or use render conditions for node inclusion/exclusion; identify attributes (xsl:attribute) → destinationXmlAttributes.
+2b. Deep-structure coverage:
+- Walk the entire target XML subtree under DataArea (depth-first) and enumerate every element and attribute. Ensure each has a mapping node or an explicit "comment" if ambiguous.
+- For each Complex node, verify all children are mapped. For each Array, verify all item fields (including attributes) are mapped.
+- Cross-check against the XSL crosswalk list; no target node/attribute constructed by the XSL may be omitted.
+3. Define variables:
+- rootSourcePath "." (required)
+- sourcePath variables for frequently used objects/arrays (e.g., lines, schedules)
+- data/expression variables for constants or precomputed values
+- For Array mappings, ensure the variable whose value matches the Array’s sourcePath (e.g., "lines") is declared. Under the Array’s children, use that same variable (e.g., $variables.lines.*) to read fields; do not introduce undeclared aliases such as $variables.currentLine.
+4. Build rootMappings:
+- Single Complex node matching the XML root; include destinationXmlAttributes as required
+5. Children:
+- Simple for leaves; Complex for nested; Array for repeats (with array sourcePath)
+6. Templates:
+- Identify repeating structures in the output XML or XSL (e.g., Address, Party, UnitPrice, Tax, Distribution, PurchaseOrderSchedule).
+- STRONGLY CONSIDER creating templates when the same structure appears multiple times. Templates improve maintainability and consistency.
+- Create templates in the templates[] array for reusable subtrees, especially when:
+  - The structure appears in multiple locations
+  - The structure appears within array items
+  - The structure is complex (3+ fields or nested structures)
+- Each template MUST be fully defined with all children, attributes, and nested structures. Never create partial templates.
+- Assign a unique, descriptive "id" to each template and reference it via "templateId" wherever that structure is needed.
+- Keep templates free of placeholders; conform to local-name and namespace rules; rely on declared variables for inputs.
+- Prefer templates over copy-paste duplicates to ensure consistency and maintainability.
+- If no templates are needed or beneficial, use an empty array [] without any comment strings. Never use comments to suggest what templates should be added.
+6a. JavaScript Functions:
+- Scan the XSL for xsl:choose/xsl:when/xsl:otherwise blocks that determine VALUES (for element content or attribute values).
+- Scan the XSL for xsl:variable blocks that use conditional logic to compute values.
+- Create a separate JavaScript file (e.g., "mapping_functions.js") alongside the mapping JSON file.
+- Start the .js file with a log helper function using the GraalVM prefix pattern (replace <messageType> with appropriate identifier).
+- For each such conditional block, generate a JavaScript function in the separate .js file.
+- Extract all input parameters from the XSL logic (e.g., basePrice, priceOverRide, eventName from XPath expressions).
+- Translate the XSL conditional logic to JavaScript (ternary operators or if-else statements).
+- Add JSDoc comments above each function with @param and @returns tags.
+- Add logging at function start (all parameters) and at function end (result) using the log function.
+- Use descriptive camelCase function names that reflect the function's purpose.
+- Reference functions in sourcePath or destinationXmlAttributes.sourcePath using $functions.<functionName>(...) syntax.
+- Ensure all function parameters are accessible via variables or other valid source paths.
+- Do NOT add functions to the functions[] array in the mapping JSON file; keep functions in the separate .js file.
+7. Controls:
+- createIfNotFound when needed
+8. References/DVM:
+- Add Reference mappings with executionSequence and consume via $references
+- Use DVM lookups when applicable
+9. Comments:
+- Add comment on nodes where assumptions are made
+
+**Example Mapping File (JSON → XML skeleton):**
+```json
+{
+"sourceFormat": "json",
+"destinationFormat": "xml",
+"comment": "JSON to XML mapping.",
+"variables": [
+{ "name": "root",
+"value": ".",
+"category": "rootSourcePath"
+}
+],
+"rootMappings": [
+{
+"destinationPath": "RootElement",
+"type": "Complex",
+"children": [
+{ "type": "Simple", "destinationPath": "SomeField", "sourcePath": "$variables.root.SomeField" },
+{ "type": "Simple", "destinationPath": "UnitPrice", "sourcePath": "$functions.getUnitPrice($variables.root.basePrice, $variables.root.priceOverRide, $variables.root.eventName)" }
+]
+}
+],
+"templates": [],
+"functions": []
+}
+```
+
+**Example JavaScript Functions File (mapping_functions.js):**
+```javascript
+function log(message) {
+    const js = 'GraalVM:MessageJS:cXML-1-2-007-OrderRequest-Out:';
+    console.log(js + message);
+}
+
+/**
+ * Returns the version if provided; otherwise, returns the default version "1.2.047".
+ * @param {string} version - The input version string.
+ * @returns {string} - The provided version or the default version string.
+ */
+function getVersion(version) {
+    log('getVersion:version: ' + version);
+    const result = version ? version : "1.2.047";
+    log('getVersion:result: ' + result);
+    return result;
+}
+
+/**
+ * Returns the correct unit price based on event name.
+ * @param {string|number} basePrice - The original base price.
+ * @param {string|number} priceOverRide - The override price to be used if certain conditions are met.
+ * @param {string} eventName - The current event name.
+ * @returns {string|number} - The chosen unit price.
+ */
+function getUnitPrice(basePrice, priceOverRide, eventName) {
+    log('getUnitPrice:basePrice: ' + basePrice + ', priceOverRide: ' + priceOverRide + ', eventName: ' + eventName);
+    let result = (eventName === 'PurchaseOrderIssued') ? priceOverRide : basePrice;
+    log('getUnitPrice:result: ' + result);
+    return result;
+}
+
+/**
+ * Returns taxability string based on taxable flag input.
+ * @param {string} taxableFlag - Should be 'N' (non-taxable) or other (taxable).
+ * @returns {string} - "Non-Taxable" or "Taxable".
+ */
+function taxCheck(taxableFlag) {
+    log('taxCheck:taxableFlag: ' + taxableFlag);
+    let result = taxableFlag === 'N' ? 'Non-Taxable' : 'Taxable';
+    log('taxCheck:result: ' + result);
+    return result;
+}
+
+/**
+ * Picks one of two values based on the prod flag.
+ * @param {string} prod - String 'true' or other, to select which value to return.
+ * @param {*} input1 - Value to return if prod is 'true'.
+ * @param {*} input2 - Value to return otherwise.
+ * @returns {*} - input1 or input2.
+ */
+function checkProd(prod, input1, input2) {
+    log('checkProd:prod: ' + prod + ', input1: ' + input1 + ', input2: ' + input2);
+    let result = prod === 'true' ? input1 : input2;
+    log('checkProd:result: ' + result);
+    return result;
+}
+
+/**
+ * Converts country code 'USA' to 'US', returns all other codes as-is.
+ * @param {string} CountryCode - The country code to convert.
+ * @returns {string} - Converted or original country code.
+ */
+function convertCountryCode(CountryCode) {
+    log('convertCountryCode:CountryCode: ' + CountryCode);
+    let result = CountryCode === 'USA' ? 'US' : CountryCode;
+    log('convertCountryCode:result: ' + result);
+    return result;
+}
+```
+
+
+
+**Task Instructions:**
+Using the uploaded input JSON, target XML, and XSL stylesheet, generate TWO files:
+1. A complete JSON mapping file adhering to the structure and rules above
+2. A separate JavaScript functions file (.js) containing all functions derived from XSL conditional logic
+
+CRITICAL: The mapping must be COMPLETE. No partial mappings, no suggestion comments, no placeholders.
+
+Ensure:
+- Produce a complete mapping: include mappings for every target element/attribute under descendants of DataArea that appear in the target XML and/or are produced by the XSL. Do not omit nodes; use createIfNotFound or "comment" keys (JSON properties) where appropriate.
+- NEVER use comment strings (// or /* */) to suggest incomplete mappings. All structures must be fully mapped.
+- If templates are needed (structures repeat), fully populate the templates array with complete template definitions. Never leave templates array with suggestion comments.
+- Map all children of every Complex and Array node completely. Do not use comments to suggest what should be added.
+- Use the XSL to align JSON fields to the XSL’s source XPaths, and map them to the exact destination element/attribute names constructed in the XSL. Do not invent names.
+- Limit XSL guidance to descendants of DataArea only; do not generate or alter DataArea itself, ApplicationArea, or envelope sections.
+- No placeholders (e.g., DEST.*) are present. All destinationPath values must be actual element local names derived from the output XML.
+- sourceFormat = "json", destinationFormat = "xml"
+- At least one rootSourcePath variable with value "."
+- Variables for commonly referenced paths
+- One root Complex node for the XML root; include attributes/namespaces as required
+- Simple/Complex/Array mappings as appropriate
+- Templates for reuse (strongly recommended when structures repeat)
+- Separate JavaScript functions file (.js) containing all functions derived from XSL conditional logic (xsl:choose/when/otherwise that determines values) with proper logging
+- Reference mappings (with executionSequence) and DVM usage where needed
+- No reliance on destinationDataType for XML
+- Add comment keys where assumptions are made
+- Do not embed or reproduce attached file contents in the mapping
+- Apply the binding rule: destinationPath and structure must come from the output XML; sourcePath must come from the input JSON (anchored to $variables.*).
+- Do not emit ellipses or editorial placeholders; provide explicit mappings for all nodes (no "etc", "…", "add later", "TODO", "// ... Other header substructures", "// ... further nested structure", or any similar suggestion comments).
+- Never use comment strings to indicate incomplete mappings. All mappings must be complete and explicit.
+
+**Validation Checklist (Authoring Acceptance Criteria):**
+- [ ] Top-level keys present and valid: sourceFormat=json, destinationFormat=xml, variables[], rootMappings[]
+- [ ] rootSourcePath variable defined with value "."
+- [ ] Root XML element defined as a Complex mapping in rootMappings (single root)
+- [ ] Optional: destinationXmlAttributes and destinationXmlNamespace set correctly
+- [ ] All required destination elements mapped; optional elements guarded via render or createIfNotFound
+- [ ] Arrays implemented using Array type with correct sourcePath and child bindings; xsl:for-each loops are reflected as Array mappings
+- [ ] Any Reference mappings include executionSequence and are consumed via $references
+- [ ] Reference mappings define restUri as an Oracle ADF REST GET URL and include one or more {{parameterName}} placeholders (case-sensitive)
+- [ ] For each reference, referenceParams[] is present; every item’s name matches a restUri placeholder and sourcePath is valid (global or local variable of allowed categories, reference usage, dvmLookup usage, or hardcoded)
+- [ ] No XML-only behavior depends on destinationDataType
+- [ ] Variable names follow constraints (alphanumeric, not starting with "Ora")
+- [ ] JSON access syntax correct: $variables.<var>.<jsonKey>
+- [ ] All destinationPath values exactly match element local names in the output XML (case-sensitive, including suffixes like ID); no prefixes included in destinationPath (local name only)
+- [ ] No namespace prefixes used in destinationXmlAttributes.name (attribute local name only); namespaces applied via destinationXmlNamespace or inherited
+- [ ] XSL crosswalk honored: Every destinationPath/attribute created by XSL is mapped; sourcePath bindings match the XSL’s source XPaths via JSON variables
+- [ ] Completeness: All descendants of DataArea present in the target XML and/or produced by the XSL are mapped (elements and attributes). Optional/conditional nodes use render/createIfNotFound or include a clarifying “comment”; no silent omissions.
+- [ ] Deep completeness: For every Complex/Array subtree, all nested children and attributes are mapped (no collapsed structures)
+- [ ] Array item completeness: Each Array’s children cover all fields of the item structure (including attributes)
+- [ ] XSL parity check: Every target node/attribute created by XSL has a corresponding mapping node (1:1), including nodes within loops
+- [ ] XSL scope limited to descendants of DataArea: neither DataArea nor ApplicationArea/envelope content is mapped from XSL guidance
+- [ ] Binding rule satisfied: destinationPath from output XML; sourcePath from input JSON
+- [ ] No placeholders present (e.g., no "DEST.*" in destinationPath, destinationXmlNamespace, or elsewhere)
+- [ ] Conditional logic in XSL (xsl:choose/when/otherwise) that determines VALUES is converted to JavaScript functions in the functions[] array with proper logging; conditional logic that determines NODE INCLUSION/EXCLUSION uses render conditions or createIfNotFound
+- [ ] Attribute creation in XSL (xsl:attribute/@name) captured with destinationXmlAttributes (local name only; namespaces via destinationXmlNamespace)
+- [ ] No input/output sample content embedded; uploaded content is used solely for deriving mappings
+- [ ] No ellipses/placeholder text present: the mapping contains no "…", "etc", "TODO", "// ...", "// ... Other header substructures", "// ... further nested structure", or any similar suggestion comments; all nodes are explicitly mapped or annotated with a clarifying "comment" key (JSON property, not comment string)
+- [ ] Complete structure mapping: All Complex and Array nodes have all their children fully mapped; no partial mappings with comment suggestions
+- [ ] Template completeness: If templates array exists, it is either fully populated with complete template definitions or empty []; never contains suggestion comments
+- [ ] No comment strings: No JavaScript-style comments (// or /* */) are used to suggest incomplete mappings anywhere in the JSON file
+- [ ] Variable hygiene: every $variables.* reference is declared in variables[] (no undeclared names such as $variables.currentLine)
+- [ ] Array bindings: for each Array mapping, children use the matched array variable name (e.g., $variables.lines.*) rather than invented aliases
+- [ ] variables[] enumerates all $variables.* names used across sourcePath, destinationXmlAttributes.sourcePath, render expressions, and functions
+- [ ] Templates: when structures repeat, reusable subtrees (e.g., Address, Party, UnitPrice, Tax, Distribution, PurchaseOrderSchedule) are STRONGLY RECOMMENDED to be defined once in templates[] with unique ids and referenced via templateId
+- [ ] Template completeness: If templates are created, each template is fully defined with all children, attributes, and nested structures (no partial templates)
+- [ ] No duplicated subtree mappings: when templates are used, repeated structures leverage templates instead of copy-paste; direct mapping is acceptable for simple or one-time-use structures
+- [ ] JavaScript functions file: A separate .js file is generated containing all functions derived from XSL conditional logic (xsl:choose/when/otherwise that determines values)
+- [ ] Log function: The .js file starts with a log helper function using the GraalVM prefix pattern (GraalVM:MessageJS:<messageType>:)
+- [ ] Function completeness: Every function includes JSDoc comments with @param and @returns tags, logging at the start (all parameters) and at the end (result), uses descriptive camelCase names, and has proper parameter extraction from XSL logic
+- [ ] Function file format: The .js file contains standalone function declarations (not JSON), with JSDoc comments above each function, properly formatted JavaScript code, and functions separated by blank lines
+- [ ] Function usage: Functions are properly referenced in sourcePath or destinationXmlAttributes.sourcePath using $functions.<functionName>(...) syntax with valid variable references
+- [ ] Mapping file functions array: The functions[] array in the mapping JSON file is empty or omitted (functions are in the separate .js file)

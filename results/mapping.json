@@ -1,0 +1,2015 @@
+{
+  "sourceFormat": "xml",
+  "destinationFormat": "json",
+  "comment": "OAGIS 10.1 PO → DOO CSV Inbound: Extracts all order header, lines, addresses (ship-to, bill-to) with field-level mapping and variable decomposition. Templates used for lines, addresses (shipToCustomer, billToCustomer).",
+  "variables": [
+    {
+      "name": "root",
+      "category": "rootSourcePath",
+      "value": "/processInboundCollaborationMessage/InboundCollaborationMessage"
+    },
+    {
+      "name": "purchaseOrderHeader",
+      "category": "rootSourcePath",
+      "value": "/processInboundCollaborationMessage/InboundCollaborationMessage/ProcessPurchaseOrder/DataArea/PurchaseOrder/PurchaseOrderHeader"
+    },
+    {
+      "name": "lines",
+      "category": "sourcePath",
+      "value": "$variables.root.ProcessPurchaseOrder/DataArea/PurchaseOrder/PurchaseOrderLine"
+    },
+    {
+      "name": "subLines",
+      "category": "sourcePath",
+      "value": "$variables.lines.PurchaseOrderSubLine"
+    },
+    {
+      "name": "billToPartyOnLine",
+      "category": "sourcePath",
+      "value": "$variables.lines.Party"
+    },
+    {
+      "name": "shipToPartyOnLine",
+      "category": "sourcePath",
+      "value": "$variables.root.ProcessPurchaseOrder/DataArea/PurchaseOrder/PurchaseOrderLine/ShipToParty"
+    },
+    {
+      "name": "billToPartyOnSubLine",
+      "category": "sourcePath",
+      "value": "$variables.subLines.Party"
+    },
+    {
+      "name": "shipToPartyOnSubLine",
+      "category": "sourcePath",
+      "value": "$variables.subLines.ShipToParty"
+    },
+    {
+      "name": "FreezePriceFlag",
+      "category": "data",
+      "value": "N"
+    },
+    {
+      "name": "FreezeShippingChargeFlag",
+      "category": "data",
+      "value": "N"
+    },
+    {
+      "name": "FreezeTaxFlag",
+      "category": "data",
+      "value": "N"
+    },
+    {
+      "name":"TransactionCategoryCode",
+      "category":"data",
+      "value":"ORDER"
+    },
+    {
+      "name":"use",
+      "category":"data",
+      "value":"SHIP_TO"
+    }
+  ],
+  "rootMappings": [
+    {
+      "destinationPath": "AgreementHeaderId",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@AgreementHeaderId",
+      "comment": "Set via OracleExtension, not present in example source XML",
+      "isDisabled":true,
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "AgreementNumber",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@AgreementNumber",
+      "comment": "Set via OracleExtension, not present in example source XML",
+      "isDisabled":true,
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BatchName",
+      "type": "Simple",
+      "sourcePath": "$variables.root.ProcessPurchaseOrder/ApplicationArea/BODID",
+      "createIfNotFound":true,
+      "destinationDataType": "Number"
+    },
+    {
+      "destinationPath": "BuyingPartyContactEmail",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Not present in example; OracleExtension or dropped"
+    },
+    {
+      "destinationPath": "BuyingPartyContactFirstName",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/BuyerContact/PersonName/GivenName",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BuyingPartyContactId",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Not mapped"
+    },
+    {
+      "destinationPath": "BuyingPartyContactLastName",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/BuyerContact/PersonName/FamilyName",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BuyingPartyContactMiddleName",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/BuyerContact/PersonName/MiddleName",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BuyingPartyContactName",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/BuyerContact/PersonName/FormattedName"
+    },
+    {
+      "destinationPath": "BuyingPartyContactNameSuffix",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/BuyerContact/PersonName/TitleAffixCode",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BuyingPartyContactNumber",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "No number mapped"
+    },
+    {
+      "destinationPath": "BuyingPartyContactOrigSystemReference",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Not mapped"
+    },
+    {
+      "destinationPath": "BuyingPartyContactTitle",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/BuyerContact/JobTitle",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BuyingPartyId",
+      "type": "Simple",
+      "sourcePath": "$variables.root.ProcessingConfiguration/PartnerKey1",
+      "destinationDataType": "Number"
+    },
+    {
+      "destinationPath": "BuyingPartyName",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/Name",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BuyingPartyNumber",
+      "type": "Simple",
+      "sourcePath": "$variables.root.ProcessingConfiguration/PartnerKey2",
+      "destinationDataType": "Number"
+    },
+    {
+      "destinationPath": "BuyingPartyOrgEmail",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "No value in source"
+    },
+    {
+      "destinationPath": "BuyingPartyOrigSystemReference",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Not present"
+    },
+    {
+      "destinationPath": "BuyingPartyPersonEmail",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Not present"
+    },
+    {
+      "destinationPath": "BuyingPartyPersonFirstName",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/Contact/PersonName/GivenName",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BuyingPartyPersonLastName",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/Contact/PersonName/FamilyName",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BuyingPartyPersonMiddleName",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/Contact/PersonName/MiddleName",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BuyingPartyPersonNameSuffix",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/Contact/PersonName/TitleAffixCode",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BuyingPartyPersonTitle",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.BuyerParty/Contact/JobTitle",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "BuyingPartyType",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "PartyType is empty/not mapped"
+    },
+    {
+      "destinationPath": "CancelReason",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Mapped for verb=CANCEL(Status/Reason) but value not present in example input"
+    },
+    {
+      "destinationPath": "CancelReasonCode",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Mapped for verb=CANCEL (Status/ReasonCode) but value not present in example input"
+    },
+    {
+      "destinationPath": "Comments",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.Description",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "CurrencyConversionDate",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Not mapped"
+    },
+    {
+      "destinationPath": "CurrencyConversionRate",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Not mapped"
+    },
+    {
+      "destinationPath": "CurrencyConversionType",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Not mapped"
+    },
+    {
+      "destinationPath": "CustomerPONumber",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.ID"
+    },
+    {
+      "destinationPath": "FreezePriceFlag",
+      "type": "Simple",
+      "sourcePath": "$variables.FreezePriceFlag",
+      "comment": "Constant N in XSL"
+    },
+    {
+      "destinationPath": "FreezeShippingChargeFlag",
+      "type": "Simple",
+      "sourcePath": "$variables.FreezeShippingChargeFlag",
+      "comment": "Constant N in XSL"
+    },
+    {
+      "destinationPath": "FreezeTaxFlag",
+      "type": "Simple",
+      "sourcePath": "$variables.FreezeTaxFlag",
+      "comment": "Constant N in XSL"
+    },
+    {
+      "destinationPath": "OperationMode",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Set to 'CANCEL' in verb=CANCEL"
+    },
+    {
+      "destinationPath": "OrigSystemDocumentReference",
+      "type": "Simple",
+      "sourcePath": "$variables.root.ProcessPurchaseOrder/ApplicationArea/BODID",
+      "destinationDataType": "Number"
+    },
+    {
+      "destinationPath": "PartialShipAllowedFlag",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.PartialShipmentAllowedIndicator",
+      "comment": "Requires convertBooleanToYesNo function on value to Y or N",
+      "createIfNotFound":true,
+      "destinationDataType": "Boolean"
+    },
+    {
+      "destinationPath": "PreCreditCheckedFlag",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@PreCreditCheckedFlag",
+      "comment": "Via OracleExtension; not in present sample",
+      "isDisabled":true
+    },
+    {
+      "destinationPath": "PreferredSoldToContactPointId",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "No value present"
+    },
+    {
+      "destinationPath": "PreferredSoldContactPointOrigSystemReference",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "No value present"
+    },
+    {
+      "destinationPath": "PricedOn",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "No value"
+    },
+    {
+      "destinationPath": "PricingDate",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "No value"
+    },
+    {
+      "destinationPath": "RequestCancelDate",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Only populated if the transaction verb is 'CANCEL'. Otherwise, this field is left blank"
+    },
+    {
+      "destinationPath": "RequestingBusinessUnitId",
+      "type": "Simple",
+      "sourcePath": "$variables.root.ProcessingConfiguration/ConfigurationData1"
+    },
+    {
+      "destinationPath": "RequestingBusinessUnitName",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "No value"
+    },
+    {
+      "destinationPath": "RequestingLegalUnit",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "No value"
+    },
+    {
+      "destinationPath": "RequestingLegalUnitId",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "No value"
+    },
+    {
+      "destinationPath": "RevisionSourceSystem",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Populated with the source system only if the transaction verb is not 'PROCESS'; otherwise, left blank"
+    },
+    {
+      "destinationPath": "SalesChannel",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@SalesChannel",
+      "comment": "Via OracleExtension; not in present sample",
+      "isDisabled":true
+    },
+    {
+      "destinationPath": "SalesChannelCode",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@SalesChannelCode",
+      "comment": "Via OracleExtension; not in present sample",
+      "isDisabled":true
+
+    },
+    {
+      "destinationPath": "Salesperson",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@SalesPerson",
+      "comment": "Via OracleExtension; not in present sample",
+      "isDisabled":true
+    },
+    {
+      "destinationPath": "SalespersonId",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@SalesPersonId",
+      "comment": "Via OracleExtension; not in present sample",
+      "isDisabled":true
+    },
+    {
+      "destinationPath": "SourceTransactionId",
+      "type": "Simple",
+      "sourcePath": "$global.functions.concat(01-, $global.functions.concat($variables.root.ProcessingConfiguration/PartnerKey1, $global.functions.concat(-, $variables.purchaseOrderHeader.ID)))",
+      "comment": "concat('01-', $partnerKey1, '-', $poNumber)",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "SourceTransactionNumber",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.ID",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "SourceTransactionRevisionNumber",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.RevisionID",
+      "createIfNotFound":true,
+      "destinationDataType": "Number"
+    },
+    {
+      "destinationPath": "SourceTransactionSystem",
+      "type": "Simple",
+      "sourcePath": "$variables.root.ProcessingConfiguration/ElectronicOrderSourceSystem",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "TransactionDocumentTypeCode",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "Not mapped in sample"
+    },
+    {
+      "destinationPath": "TransactionOn",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.OrderDateTime",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "TransactionTypeCode",
+      "type": "Simple",
+      "sourcePath": "$variables.root.ProcessPurchaseOrder/DataArea/PurchaseOrder@typeCode",
+      "comment": "If missing, should pull from PurchaseOrder/@typeCode"
+    },
+    {
+      "destinationPath": "TransactionalCurrencyCode",
+      "type": "Simple",
+      "sourcePath": "$variables.purchaseOrderHeader.TotalAmount@currencyCode",
+      "comment":"DVM function handling will be here, if dvm present pick that else this sourcePath",
+      "createIfNotFound":true
+    },
+    {
+      "destinationPath": "TransactionalCurrencyName",
+      "type": "Simple",
+      "sourcePath": "$global.variables.null",
+      "comment": "No direct source"
+    },
+    {
+      "templateId": "lines"
+    },
+    {
+      "templateId": "billToCustomer"
+    }
+  ],
+  "templates": [
+    {
+      "id": "lines",
+      "destinationPath": "lines",
+      "type": "Array",
+      "sourcePath": "$variables.root.ProcessPurchaseOrder/DataArea/PurchaseOrder/PurchaseOrderLine",
+      "children": [
+        {
+          "destinationPath": "AgreementHeaderId",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@AgreementHeaderId",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "CustomerPONumber",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.ID"
+        },
+        {
+          "destinationPath": "AgreementNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@AgreementNumber",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "AssessableValue",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No AssessableValue in source"
+        },
+        {
+          "destinationPath": "TransactionCategoryCode",
+          "type": "Simple",
+          "sourcePath": "$variables.TransactionCategoryCode"
+        },
+        {
+          "destinationPath": "AssetGroupNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@AssetGroupNumber",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "BusinessUnitId",
+          "type": "Simple",
+          "sourcePath": "$variables.root.ProcessingConfiguration/ConfigurationData1"
+        },
+        {
+          "destinationPath": "BusinessUnitName",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No BusinessUnitName in source"
+        },
+        {
+          "destinationPath": "CancelReason",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "Mapped for verb=CANCEL(Status/Reason) but value not present in example input"
+        },
+        {
+          "destinationPath": "CancelReasonCode",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "Mapped for verb=CANCEL (Status/ReasonCode) but value not present in example input"
+        },
+        {
+          "destinationPath": "Comments",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Description@typeCode",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ComponentIdPath",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No ComponentIdPath in source"
+        },
+        {
+          "destinationPath": "ConfigHeaderId",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No ConfigHeaderId in source"
+        },
+        {
+          "destinationPath": "ConfigRevisionNumber",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No ConfigRevisionNumber in source"
+        },
+        {
+          "destinationPath": "ConfiguratorPath",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No ConfiguratorPath in source"
+        },
+        {
+          "destinationPath": "ContractEndDate",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/DateTime@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ContractStartDate",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/DateTime@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "CustomerProductDescription",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/Description",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "CustomerProductId",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No CustomerProductId in source"
+        },
+        {
+          "destinationPath": "CustomerProductNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/ID",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "DefaultTaxationCountry",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML, DVM logic will be there",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "DefaultTaxationCountryShortName",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML, DVM logic will be there",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "DemandClass",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "DemandClassCode",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML, DVM logic will be there",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "AccountingRule",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set via OracleExtension ValueText@AccountingRule via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "AccountingRuleCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set via OracleExtension ValueText@AccountingRuleCode with DVM lookup ACCOUNTING_RULE_CODE"
+        },
+        {
+          "destinationPath": "DocumentSubtype",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@DocumentSubtype via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "DocumentSubtypeName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@DocumentSubtypeName via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "EarliestAcceptableArrivalDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@EarliestAcceptableArrivalDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "EarliestAcceptableShipDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@EarliestAcceptableShipDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "FOBPoint",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@FobPoint (element name FobPoint in XSL)"
+        },
+        {
+          "destinationPath": "FirstPartyTaxRegistration",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@FirstPartyTaxRegistration via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "FirstPartyTaxRegistrationNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@FirstPartyTaxRegistrationNumber via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "FreightTerms",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@FreightTerms under TransportationTerm via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "FreightTermsCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.TransportStep/TransportationTerm/FreightTermCode",
+          "comment": "From TransportStep/TransportationTerm oa:FreightTermCode with optional DVM lookup FREIGHT_TERMS_CODE"
+        },
+        {
+          "destinationPath": "InvoicingRule",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@InvoicingRule via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "InvoicingRuleCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@InvoicingRuleCode with DVM lookup INVOICING_RULE_CODE"
+        },
+        {
+          "destinationPath": "LatestAcceptableArrivalDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@LatestAcceptableArrivalDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "LatestAcceptableShipDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@LatestAcceptableShipDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "OrderedQuantity",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Quantity",
+          "comment": "From oa:Quantity, converted via convertToDecimal"
+        },
+        {
+          "destinationPath": "OrderedUOM",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@OrderedUOM via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "OrderedUOMCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Quantity@unitCode",
+          "comment": "From oa:Quantity/@unitCode"
+        },
+        {
+          "destinationPath": "PaymentTerms",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.PaymentTerm/Description",
+          "comment": "Element name in XSL is PaymentTerm (from oa:PaymentTerm/oa:Description)"
+        },
+        {
+          "destinationPath": "PaymentTermsCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.PaymentTerm/ID",
+          "comment": "Element name in XSL is PaymentTermCode (from oa:PaymentTerm/oa:ID with optional DVM lookup)"
+        },
+        {
+          "destinationPath": "ProductCategory",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/Classification/Code@typeCode",
+          "comment": "From Item/Classification/Code[typeCode='ProductCategory'] with optional DVM lookup PRODUCT_CATEGORY"
+        },
+        {
+          "destinationPath": "ProductCategoryName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ProductCategoryName via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "ProductDescription",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/SupplierItemIdentification/Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ProductDescription inside Item/SupplierItemIdentification"
+        },
+        {
+          "destinationPath": "ProductFiscalCategory",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ProductFiscalCategoryName (XSL calls it ProductFiscalCategoryName)"
+        },
+        {
+          "destinationPath": "ProductFiscalCategoryId",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ProductFiscalCategoryId"
+        },
+        {
+          "destinationPath": "ProductNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/SupplierItemIdentification/ID",
+          "comment": "From oa:Item/oa:SupplierItemIdentification/oa:ID"
+        },
+        {
+          "destinationPath": "ProductType",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/Classification/Code@typeCode",
+          "isDisabled": true,
+          "comment": "Item/Classification/Code[typeCode='ProductType'] with optional DVM lookup PRODUCT_TYPE"
+        },
+        {
+          "destinationPath": "ProductTypeName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ProductTypeName via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "RequestedArrivalDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@RequestedArrivalDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "RequestedFulfillmentOrganizationCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.ShipFromParty/Location/ID",
+          "comment": "oa:ShipFromParty/Location/ID"
+        },
+        {
+          "destinationPath": "RequestedFulfillmentOrganizationName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.ShipFromParty/Location/Name",
+          "comment": "oa:ShipFromParty/Location/Name"
+        },
+        {
+          "destinationPath": "RequestedShipDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@RequestedShipDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "RequiredFulfillmentDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@RequiredFulfillmentDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "Salesperson",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@SalesPerson via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "SalespersonId",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@SalesPersonId via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "ShipSetName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ShipSetName via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "ShippingInstructions",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.ShippingInstructions",
+          "comment": "From oa:ShippingInstructions"
+        },
+        {
+          "destinationPath": "ShippingMode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ShippingMode via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "ShippingModeCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ShippingModeCode via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "ShippingServiceLevel",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ShippingServiceLevel via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "SourceTransactionLineId",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set to $srcTransLineID"
+        },
+        {
+          "destinationPath": "SourceTransactionLineNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set to $srcTransLineNumber"
+        },
+        {
+          "destinationPath": "SourceTransactionScheduleId",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set to $srcTransSchedID"
+        },
+        {
+          "destinationPath": "Subinventory",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "Element created empty"
+        },
+        {
+          "destinationPath": "SubinventoryCode",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "Element created empty"
+        },
+        {
+          "destinationPath": "SubstitutionAllowedFlag",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.AllowSubstitutionIndicator",
+          "comment": "convertBooleanToYesNo on oa:AllowSubstitutionIndicator"
+        },
+        {
+          "destinationPath": "TaxClassification",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TaxClassification via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "TaxClassificationCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TaxClassificationCode with DVM lookup TAX_CLASSIFICATION_CODE"
+        },
+        {
+          "destinationPath": "TaxExemptReason",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TaxExemptReason via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "TaxExemptReasonCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TaxExemptReasonCode with DVM lookup TAX_EXEMPT_REASON_CODE"
+        },
+        {
+          "destinationPath": "TransactionLineType",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TransactionalLineType via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "TransactionLineTypeCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TransactionalLineTypeCode with DVM lookup TRANSACTION_LINE_TYPE_CODE"
+        },
+        {
+          "destinationPath": "UserDefinedFiscalClass",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@UserDefinedFiscalClass via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "UserDefinedFiscClassName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@UserDefinedFiscalClassName via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "TotalContractAmount",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/Amount@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension Amount@TotalContractAmount via GetNamedExtAmount"
+        },
+        {
+          "destinationPath": "TotalContractQuantity",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/Quantity@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension Quantity@TotalContractQuantity via GetNamedExtQuantity"
+        },
+        {
+          "destinationPath": "CustomerPOLineNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.LineNumberID",
+          "createIfNotFound":true,
+          "destinationDataType": "Number"
+        },
+        {
+          "templateId": "subline"
+        },
+        {
+          "templateId": "billToCustomerinLine"
+        },
+        {
+          "templateId": "shipToCustomer"
+        },
+        {
+          "templateId":"paymentsinLine"
+        }
+      ]
+    },
+    {
+      "id": "billToCustomer",
+      "destinationPath": "billToCustomer",
+      "type": "Array",
+      "sourcePath": "$variables.root.DataArea/PurchaseOrder/PurchaseOrderLine/Party",
+      "children": [
+        {
+          "destinationPath": "City",
+          "type": "Simple",
+          "sourcePath": "$variables.billToPartyOnLine.Location/Address/CityName",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ContactFirstName",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No OrganizationContact in source"
+        },
+        {
+          "destinationPath": "ContactLastName",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No OrganizationContact in source"
+        },
+        {
+          "destinationPath": "ContactMiddleName",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No OrganizationContact in source"
+        },
+        {
+          "destinationPath": "ContactNameSuffix",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No OrganizationContact in source"
+        },
+        {
+          "destinationPath": "ContactTitle",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No OrganizationContact in source"
+        },
+        {
+          "destinationPath": "Country",
+          "type": "Simple",
+          "sourcePath": "$variables.billToPartyOnLine.Location.Address.CountryCode",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "County",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No mapping"
+        },
+        {
+          "destinationPath": "PartyName",
+          "type": "Simple",
+          "sourcePath": "$variables.billToPartyOnLine.Name",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "PartyType",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No mapping"
+        },
+        {
+          "destinationPath": "PostalCode",
+          "type": "Simple",
+          "sourcePath": "$variables.billToPartyOnLine.Location.Address.PostalCode",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "PreferredContactPointId",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No mapping"
+        },
+        {
+          "destinationPath": "Province",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No mapping"
+        },
+        {
+          "destinationPath": "State",
+          "type": "Simple",
+          "sourcePath": "$variables.billToPartyOnLine.Location.Address.CountrySubDivisionCode",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "SourceTransactionId",
+          "type": "Simple",
+          "sourcePath": "$global.functions.concat(01-, $global.functions.concat($variables.root.ProcessingConfiguration/PartnerKey1, $global.functions.concat(-, $variables.purchaseOrderHeader.ID)))",
+          "comment": "concat('01-', $partnerKey1, '-', $poNumber)",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "AddressUseType",
+          "type": "Simple",
+          "sourcePath": "$variables.use",
+          "comment": "Constant 'SHIP_TO'"
+        }
+      ]
+    },
+    {
+      "id": "shipToCustomer",
+      "destinationPath": "shipToCustomer",
+      "type": "Array",
+      "sourcePath": "$variables.root.ProcessPurchaseOrder/DataArea/PurchaseOrder/PurchaseOrderLine/ShipToParty",
+      "children": [
+        {
+          "destinationPath": "AddressUseType",
+          "type": "Simple",
+          "sourcePath": "$variables.use",
+          "comment": "Constant 'SHIP_TO'"
+        },
+        {
+          "destinationPath": "City",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Location/Address/CityName",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ContactFirstName",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Contact@OrganizationContact/PersonName/GivenName",
+          "comment": "",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ContactLastName",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Contact@OrganizationContact/PersonName/FamilyName",
+          "comment": "",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ContactMiddleName",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Contact@OrganizationContact/PersonName/MiddleName",
+          "comment": "",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ContactNameSuffix",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Contact@OrganizationContact/PersonName/QualificationAffixCode",
+          "comment": "",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ContactTitle",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Contact@OrganizationContact/JobTitle",
+          "comment": "",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "Country",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Location/Address/CountryCode",
+          "comment": "DVM function handling will be here",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "County",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Location/Address/CountrySubDivisionCode@County",
+          "comment": "for each loop exists in XSL",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "PartyId",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "Not mapped; empty"
+        },
+        {
+          "destinationPath": "PartyNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.ID",
+          "comment": "only if $use=SHIP_TO",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "PartyName",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Name",
+          "comment": "only if $use=SHIP_TO",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "PartyType",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "if no typecode for shipToParty, leave empty else there are logics in XSL"
+        },
+        {
+          "destinationPath": "PostalCode",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Location/Address/PostalCode",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "PreferredContactPointId",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No mapping"
+        },
+        {
+          "destinationPath": "Province",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Location/Address/CountrySubDivisionCode@Province",
+          "comment": "",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "State",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Location/Address/CountrySubDivisionCode@State",
+          "comment":"dvm logic exists",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath":"SiteId",
+          "type":"Simple",
+          "sourcePath":"$variables.shipToPartyOnLine.Location/IDSet/ID@PartySiteId",
+          "comment":"only if $use=SHIP_TO and also dvm come in picture",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "SourceTransactionId",
+          "type": "Simple",
+          "sourcePath": "$global.functions.concat(01-, $global.functions.concat($variables.root.ProcessingConfiguration/PartnerKey1, $global.functions.concat(-, $variables.purchaseOrderHeader.ID)))",
+          "comment": "concat('01-', $partnerKey1, '-', $poNumber)",
+          "createIfNotFound":true
+        }
+      ]
+    },
+    { "id": "subline",
+      "destinationPath": "subline",
+      "type": "Array",
+      "sourcePath": "$variables.lines.PurchaseOrderSubline",
+      "children": [
+        {
+          "destinationPath": "CustomerPOLineNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.subline.LineNumberID",
+          "createIfNotFound":true,
+          "destinationDataType": "Number"
+        },
+        {
+          "destinationPath": "AgreementHeaderId",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@AgreementHeaderId",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "AgreementNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@AgreementNumber",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "AssessableValue",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No AssessableValue in source"
+        },
+        {
+          "destinationPath": "AssetGroupNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@AssetGroupNumber",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "BusinessUnitId",
+          "type": "Simple",
+          "sourcePath": "$variables.root.ProcessingConfiguration/ConfigurationData1"
+        },
+        {
+          "destinationPath": "BusinessUnitName",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No BusinessUnitName in source"
+        },
+        {
+          "destinationPath": "CancelReason",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "Mapped for verb=CANCEL(Status/Reason) but value not present in example input"
+        },
+        {
+          "destinationPath": "CancelReasonCode",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "Mapped for verb=CANCEL (Status/ReasonCode) but value not present in example input"
+        },
+        {
+          "destinationPath": "Comments",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Description@typeCode",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ComponentIdPath",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No ComponentIdPath in source"
+        },
+        {
+          "destinationPath": "ConfigHeaderId",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No ConfigHeaderId in source"
+        },
+        {
+          "destinationPath": "ConfigRevisionNumber",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No ConfigRevisionNumber in source"
+        },
+        {
+          "destinationPath": "ConfiguratorPath",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No ConfiguratorPath in source"
+        },
+        {
+          "destinationPath": "ContractEndDate",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/DateTime@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ContractStartDate",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/DateTime@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "CustomerProductDescription",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/Description",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "CustomerProductId",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No CustomerProductId in source"
+        },
+        {
+          "destinationPath": "CustomerProductNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/ID",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "DefaultTaxationCountry",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML, DVM logic will be there",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "DefaultTaxationCountryShortName",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML, DVM logic will be there",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "DemandClass",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "DemandClassCode",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.Extension@OracleExtension/ValueText@typeCode",
+          "comment": "Set via OracleExtension, not present in example source XML, DVM logic will be there",
+          "isDisabled":true,
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "AccountingRule",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set via OracleExtension ValueText@AccountingRule via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "AccountingRuleCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set via OracleExtension ValueText@AccountingRuleCode with DVM lookup ACCOUNTING_RULE_CODE"
+        },
+        {
+          "destinationPath": "DocumentSubtype",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@DocumentSubtype via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "DocumentSubtypeName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@DocumentSubtypeName via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "EarliestAcceptableArrivalDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@EarliestAcceptableArrivalDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "EarliestAcceptableShipDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@EarliestAcceptableShipDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "FOBPoint",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@FobPoint (element name FobPoint in XSL)"
+        },
+        {
+          "destinationPath": "FirstPartyTaxRegistration",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@FirstPartyTaxRegistration via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "FirstPartyTaxRegistrationNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@FirstPartyTaxRegistrationNumber via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "FreightTerms",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@FreightTerms under TransportationTerm via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "FreightTermsCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.TransportStep/TransportationTerm/FreightTermCode",
+          "comment": "From TransportStep/TransportationTerm oa:FreightTermCode with optional DVM lookup FREIGHT_TERMS_CODE"
+        },
+        {
+          "destinationPath": "InvoicingRule",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@InvoicingRule via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "InvoicingRuleCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@InvoicingRuleCode with DVM lookup INVOICING_RULE_CODE"
+        },
+        {
+          "destinationPath": "LatestAcceptableArrivalDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@LatestAcceptableArrivalDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "LatestAcceptableShipDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@LatestAcceptableShipDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "OrderedQuantity",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Quantity",
+          "comment": "From oa:Quantity, converted via convertToDecimal"
+        },
+        {
+          "destinationPath": "OrderedUOM",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@OrderedUOM via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "OrderedUOMCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Quantity@unitCode",
+          "comment": "From oa:Quantity/@unitCode"
+        },
+        {
+          "destinationPath": "PaymentTerms",
+          "type": "Simple",
+          "sourcePath": "$variables.subline.PaymentTerm/Description",
+          "comment": "Element name in XSL is PaymentTerm (from oa:PaymentTerm/oa:Description)"
+        },
+        {
+          "destinationPath": "PaymentTermsCode",
+          "type": "Simple",
+          "sourcePath": "$variables.subline.PaymentTerm/ID",
+          "comment": "Element name in XSL is PaymentTermCode (from oa:PaymentTerm/oa:ID with optional DVM lookup)"
+        },
+        {
+          "destinationPath": "ProductCategory",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/Classification/Code@typeCode",
+          "comment": "From Item/Classification/Code[typeCode='ProductCategory'] with optional DVM lookup PRODUCT_CATEGORY"
+        },
+        {
+          "destinationPath": "ProductCategoryName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ProductCategoryName via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "ProductDescription",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/SupplierItemIdentification/Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ProductDescription inside Item/SupplierItemIdentification"
+        },
+        {
+          "destinationPath": "ProductFiscalCategory",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ProductFiscalCategoryName (XSL calls it ProductFiscalCategoryName)"
+        },
+        {
+          "destinationPath": "ProductFiscalCategoryId",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ProductFiscalCategoryId"
+        },
+        {
+          "destinationPath": "ProductNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/SupplierItemIdentification/ID",
+          "comment": "From oa:Item/oa:SupplierItemIdentification/oa:ID"
+        },
+        {
+          "destinationPath": "ProductType",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Item/Classification/Code@typeCode",
+          "isDisabled": true,
+          "comment": "Item/Classification/Code[typeCode='ProductType'] with optional DVM lookup PRODUCT_TYPE"
+        },
+        {
+          "destinationPath": "ProductTypeName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ProductTypeName via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "RequestedArrivalDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@RequestedArrivalDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "RequestedFulfillmentOrganizationCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.ShipFromParty/Location/ID",
+          "comment": "oa:ShipFromParty/Location/ID"
+        },
+        {
+          "destinationPath": "RequestedFulfillmentOrganizationName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.ShipFromParty/Location/Name",
+          "comment": "oa:ShipFromParty/Location/Name"
+        },
+        {
+          "destinationPath": "RequestedShipDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@RequestedShipDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "RequiredFulfillmentDate",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/DateTime@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension DateTime@RequiredFulfillmentDate via GetNamedExtDateTime"
+        },
+        {
+          "destinationPath": "Salesperson",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@SalesPerson via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "SalespersonId",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@SalesPersonId via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "ShipSetName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ShipSetName via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "ShippingInstructions",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.ShippingInstructions",
+          "comment": "From oa:ShippingInstructions"
+        },
+        {
+          "destinationPath": "ShippingMode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ShippingMode via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "ShippingModeCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ShippingModeCode via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "ShippingServiceLevel",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension ValueText@ShippingServiceLevel via GetNamedExtWithoutElementValueText"
+        },
+        {
+          "destinationPath": "SourceTransactionLineId",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set to $srcTransLineID"
+        },
+        {
+          "destinationPath": "SourceTransactionLineNumber",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set to $srcTransLineNumber"
+        },
+        {
+          "destinationPath": "SourceTransactionScheduleId",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set to $srcTransSchedID"
+        },
+        {
+          "destinationPath": "CustomerPONumber",
+          "type": "Simple",
+          "sourcePath": "$variables.purchaseOrderHeader.ID"
+        },
+        {
+          "destinationPath": "Subinventory",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "Element created empty"
+        },
+        {
+          "destinationPath": "SubinventoryCode",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "Element created empty"
+        },
+        {
+          "destinationPath": "SubstitutionAllowedFlag",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.AllowSubstitutionIndicator",
+          "comment": "convertBooleanToYesNo on oa:AllowSubstitutionIndicator"
+        },
+        {
+          "destinationPath": "TaxClassification",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TaxClassification via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "TaxClassificationCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TaxClassificationCode with DVM lookup TAX_CLASSIFICATION_CODE"
+        },
+        {
+          "destinationPath": "TaxExemptReason",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TaxExemptReason via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "TaxExemptReasonCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TaxExemptReasonCode with DVM lookup TAX_EXEMPT_REASON_CODE"
+        },
+        {
+          "destinationPath": "TransactionLineType",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TransactionalLineType via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "TransactionLineTypeCode",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@TransactionalLineTypeCode with DVM lookup TRANSACTION_LINE_TYPE_CODE"
+        },
+        {
+          "destinationPath": "UserDefinedFiscalClass",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@UserDefinedFiscalClass via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "UserDefinedFiscClassName",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension ValueText@UserDefinedFiscalClassName via GetNamedExtValueText"
+        },
+        {
+          "destinationPath": "TotalContractAmount",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/Amount@typeCode",
+          "isDisabled":true,
+          "comment": "OracleExtension Amount@TotalContractAmount via GetNamedExtAmount"
+        },
+        {
+          "destinationPath": "TotalContractQuantity",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/Quantity@typeCode",
+          "isDisabled": true,
+          "comment": "OracleExtension Quantity@TotalContractQuantity via GetNamedExtQuantity"
+        }
+      ]
+    },
+    {
+      "id": "billToCustomerinLine",
+      "destinationPath": "billToCustomer",
+      "type": "Array",
+      "sourcePath": "$variables.lines.PurchaseOrderLine/Party",
+      "children": [
+        {
+          "destinationPath": "SourceTransactionId",
+          "type": "Simple",
+          "sourcePath": "$global.functions.concat(01-, $global.functions.concat($variables.root.ProcessingConfiguration/PartnerKey1, $global.functions.concat(-, $variables.purchaseOrderHeader.ID)))",
+          "comment": "concat('01-', $partnerKey1, '-', $poNumber)",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "SourceTransactionSystem",
+          "type": "Simple",
+          "sourcePath": "$variables.root.ProcessingConfiguration/ElectronicOrder",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "AddressUseType",
+          "type": "Simple",
+          "sourcePath": "$variables.use",
+          "comment": "Constant 'SHIP_TO'"
+        },
+        {
+          "destinationPath": "City",
+          "type": "Simple",
+          "sourcePath": "$variables.billToPartyOnLine.Location/Address/CityName",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath":"Address1",
+          "type":"Simple",
+          "sourcePath":"$variables.billToPartyOnLine.Location.AddressLine@sequenceNumber"
+        },
+        {
+          "destinationPath":"Address2",
+          "type":"Simple",
+          "sourcePath":"$variables.billToPartyOnLine.Location.AddressLine@sequenceNumber"
+        },
+        {
+          "destinationPath":"Address3",
+          "type":"Simple",
+          "sourcePath":"$variables.billToPartyOnLine.Location.AddressLine@sequenceNumber"
+        },
+        {
+          "destinationPath":"Address4",
+          "type":"Simple",
+          "sourcePath":"$variables.billToPartyOnLine.Location.AddressLine@sequenceNumber"
+        },
+        {
+          "destinationPath": "ContactFirstName",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No OrganizationContact in source"
+        },
+        {
+          "destinationPath": "ContactLastName",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Contact@OrganizationContact/PersonName/FamilyName",
+          "comment": "",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ContactMiddleName",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Contact@OrganizationContact/PersonName/MiddleName",
+          "comment": "",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ContactNameSuffix",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Contact@OrganizationContact/PersonName/QualificationAffixCode",
+          "comment": "",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "ContactTitle",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Contact@OrganizationContact/JobTitle",
+          "comment": "",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "Country",
+          "type": "Simple",
+          "sourcePath": "$variables.billToPartyOnLine.Location.Address.CountryCode",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "County",
+          "type": "Simple",
+          "sourcePath": "$variables.shipToPartyOnLine.Location/Address/CountrySubDivisionCode@County",
+          "comment": "for each loop exists in XSL",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "PartyName",
+          "type": "Simple",
+          "sourcePath": "$variables.billToPartyOnLine.Name",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "PartyType",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No mapping"
+        },
+        {
+          "destinationPath": "PostalCode",
+          "type": "Simple",
+          "sourcePath": "$variables.billToPartyOnLine.Location.Address.PostalCode",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "PreferredContactPointId",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No mapping"
+        },
+        {
+          "destinationPath": "Province",
+          "type": "Simple",
+          "sourcePath": "$global.variables.null",
+          "comment": "No mapping"
+        },
+        {
+          "destinationPath": "SourceTransactionId",
+          "type": "Simple",
+          "sourcePath": "$global.functions.concat(01-, $global.functions.concat($variables.root.ProcessingConfiguration/PartnerKey1, $global.functions.concat(-, $variables.purchaseOrderHeader.ID)))",
+          "comment": "concat('01-', $partnerKey1, '-', $poNumber)",
+          "createIfNotFound":true
+        },
+        {
+          "destinationPath": "SourceTransactionLineId",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set to $srcTransLineID"
+        },
+        {
+          "destinationPath": "SourceTransactionScheduleId",
+          "type": "Simple",
+          "sourcePath": "$variables.lines.Extension@OracleExtension/ValueText@typeCode",
+          "isDisabled": true,
+          "comment": "Set to $srcTransSchedID"
+        },
+        {
+          "destinationPath": "State",
+          "type": "Simple",
+          "sourcePath": "$variables.billToPartyOnLine.Location.Address.CountrySubDivisionCode",
+          "createIfNotFound":true
+        }
+      ]
+    },
+    {
+      "id":"payments",
+      "destinationPath":"payments",
+      "type":"Array",
+      "sourcePath":"$variables.root.ProcessPurchaseOrder/DataArea/PurchaseOrder/PurchaseOrderLine/Extension@typeCode",
+      "comment":"@typeCode='OraclePaymentExtension",
+      "children":[
+        {
+          "destinationPath":"PaymentMethod",
+          "type":"Simple",
+          "sourcePath":"$variables.payments.ValueText@typeCode",
+          "comment":"Extension[@typeCode='OraclePaymentExtension']/ValueText[@typeCode='PaymentMethod']"
+        },
+        {
+          "destinationPath":"PaymentMethodCode",
+          "type":"Simple",
+          "sourcePath":"$variables.payments.ValueText@typeCode",
+          "comment":"Extension[@typeCode='OraclePaymentExtension']/ValueText[@typeCode='PaymentMethodCode']"
+        },
+        {
+          "destinationPath":"PaymentSetId",
+          "type":"Simple",
+          "sourcePath":"$variables.payments.ValueText@typeCode",
+          "comment":"Extension[@typeCode='OraclePaymentExtension']/ValueText[@typeCode='PaymentSetId']"
+        },
+        {
+          "destinationPath":"PaymentTransactionId",
+          "type":"Simple",
+          "sourcePath":"$variables.payments.ValueText@typeCode",
+          "comment":"Extension[@typeCode='OraclePaymentExtension']/ValueText[@typeCode='PaymentTransactionId']"
+        },
+        {
+          "destinationPath":"SourceTransactionPaymentId",
+          "type":"Simple",
+          "sourcePath":"$global.variables.null",
+          "comment":"Always prefixed with 06- and then sequential index,  count (1-based index) of the current oa:Extension[@typeCode='OraclePaymentExtension'] among its siblings."
+        }
+      ]
+    }
+  ]
+}

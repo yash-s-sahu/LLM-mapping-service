@@ -1,0 +1,611 @@
+<processInboundCollaborationMessage xmlns:oraxsl="http://www.oracle.com/XSL/Transform/java" xmlns:oracle-xsl-mapper="http://www.oracle.com/xsl/mapper/schemas" xmlns:ns1="http://xmlns.oracle.com/apps/scm/cmk" xmlns="http://xmlns.oracle.com/apps/scm/cmk" xmlns:wsa="http://www.w3.org/2005/08/addressing">
+   <ns1:InboundCollaborationMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="">
+    	<MessageID>IN_121021</MessageID>
+    	<ns1:ProcessingConfiguration>
+         <ns1:MessageType>ProcessPurchaseOrder</ns1:MessageType>
+         <ns1:DocumentType>ProcessPurchaseOrder</ns1:DocumentType>
+         <ns1:Standard>ORA_OAGIS</ns1:Standard>
+         <ns1:Version>10.1</ns1:Version>
+         <ns1:ExtMessageTypeName>OAGIS_10.1_PROCESS_PO</ns1:ExtMessageTypeName>
+         <ns1:DocumentSubtype>ProcessPurchaseOrder</ns1:DocumentSubtype>
+         <ns1:DocumentId>50011</ns1:DocumentId>
+         <ns1:Direction>In</ns1:Direction>
+         <ns1:SenderRole>Customer</ns1:SenderRole>
+         <ns1:DocumentName>PROCESS_PO_IN</ns1:DocumentName>
+         <ns1:CollaborationObject>PurchaseOrder</ns1:CollaborationObject>
+         <ns1:PartnerMessageId>300100576111289</ns1:PartnerMessageId>
+         <ns1:PartnerMessageName>INDIVIDUAL_BOD_MESSAGES_DOC_TYPE_V2_I1</ns1:PartnerMessageName>
+         <ns1:FromPartnerIdXpath/>
+         <ns1:FromPartnerIdTypeXpath/>
+         <ns1:OverlayXsltFileName/>
+         <ns1:MessageName>OAGIS_10.1_PROCESS_PO_IN_V2</ns1:MessageName>
+         <ns1:MessageId>70029</ns1:MessageId>
+         <ns1:GenericXsltFilename>OAGIS-10.1-ProcessPurchaseOrderCollaborationMessageToDOO-Order-v2.xsl</ns1:GenericXsltFilename>
+         <ns1:DocOperationId>50011</ns1:DocOperationId>
+         <ns1:ApplModShortName>CmkCollaborationMessagingDOOProcessInboundComposite</ns1:ApplModShortName>
+         <ns1:ApplPartnerDocStatus>Enabled</ns1:ApplPartnerDocStatus>
+         <ns1:PartnerKey1>424683</ns1:PartnerKey1>
+         <ns1:PartnerKey2>225539</ns1:PartnerKey2>
+         <ns1:PartnerKey3>GENERAL ELECTRIC CAPITAL ASSURANCE CO</ns1:PartnerKey3>
+         <ns1:PartnerKey4/>
+         <ns1:PartnerKey5/>
+         <ns1:PartnerKey6/>
+         <ns1:PartnerKeyType>SoldToParty</ns1:PartnerKeyType>
+         <ns1:ProcActionCode/>
+         <ns1:DvmGroup/>
+         <ns1:ApplPtnrCodeXpath/>
+         <ns1:ExtPartnerId>INDIVIDUAL_BOD_MESSAGES_DOC_TYPE_V2_TP1</ns1:ExtPartnerId>
+         <ns1:ExtPartnerIdType>ORA_Generic</ns1:ExtPartnerIdType>
+         <ns1:ExternalPartnerId>300100576126160</ns1:ExternalPartnerId>
+         <ns1:ServiceProviderId>300100576111286</ns1:ServiceProviderId>
+         <ns1:B2bPartnerId>INDIVIDUAL_BOD_MESSAGES_DOC_TYPE_V2</ns1:B2bPartnerId>
+         <ns1:B2bPartnerIdType>ORA_Name</ns1:B2bPartnerIdType>
+         <ns1:GlobalSenderId/>
+         <ns1:GlobalSenderIdType/>
+         <ns1:ServiceProviderName>INDIVIDUAL_BOD_MESSAGES_DOC_TYPE_V2</ns1:ServiceProviderName>
+         <ns1:ExtMsgTypeTag/>
+         <ns1:ExtMsgVersionTag/>
+         <ns1:ExtMsgStandardTag/>
+         <ns1:ServiceProviderIdTag/>
+         <ns1:FromPartnerIdTag/>
+         <ns1:FromPartnerIdTypeTag/>
+         <ns1:ToPartnerIdTag/>
+         <ns1:ToPartnerIdTypeTag/>
+         <ns1:B2bRoutingFlag/>
+         <ns1:Service/>
+         <ns1:DeliveryMethodType/>
+         <ns1:DeliveryMethodId/>
+         <ns1:MaxMessageSize/>
+         <MesageLogID>300100682261702</MesageLogID>
+         <ns1:StartDateTime>2025-12-25T05:59:12.583+00:00</ns1:StartDateTime>
+         <ns1:StoreOutboundInputFlag>Yes</ns1:StoreOutboundInputFlag>
+         <ns1:StoreOutboundOutputFlag>Yes</ns1:StoreOutboundOutputFlag>
+         <ns1:StoreInboundInputFlag>Yes</ns1:StoreInboundInputFlag>
+         <ns1:StoreInboundOutputFlag>Yes</ns1:StoreInboundOutputFlag>
+         <ns1:TestFlag/>
+         <SenderMessageId>7579633</SenderMessageId>
+         <ValidationStatus>Success</ValidationStatus>
+         <ValidationErorSubType xsi:nil="true"/>
+         <ns1:ObjectKey1>CUST_PO_R13V2MIBSCML06_0617_03</ns1:ObjectKey1>
+         <ns1:ObjectKey2/>
+         <ns1:ObjectKey3/>
+         <ns1:ObjectKey4/>
+         <ns1:ObjectKey5/>
+         <ns1:ObjectKey6/>
+         <ns1:ConfigurationData1/>
+         <ns1:ConfigurationData2/>
+         <ns1:ConfigurationData3/>
+         <ns1:ConfigurationData4/>
+         <ns1:ConfigurationData5/>
+         <ns1:ConfigurationData6/>
+         <ns1:CorrelationID/>
+         <ns1:DocumentSecurityGroup>FAFusionImportExport</ns1:DocumentSecurityGroup>
+         <ns1:DocumentAccount/>
+         <ns1:ElectronicOrderSourceSystem>ORA_ELECTRONIC_DOCUMENTS</ns1:ElectronicOrderSourceSystem>
+         <ns1:ExternalPartnerMessageStatus>Active</ns1:ExternalPartnerMessageStatus>
+         <ns1:ExternalPartnerDocumentStatus/>
+         <ns1:UcmExportDocAccount/>
+         <ns1:FileName/>
+         <ns1:DelRuleDetailId/>
+         <ns1:NotificationTaskId/>
+         <ns1:OriginalMessageName/>
+         <ns1:MessageAttachments/>
+         <ns1:MessageIdCreatedBy>SEED_DATA_FROM_APPLICATION</ns1:MessageIdCreatedBy>
+         <ns1:RecipientEmailId/>
+         <ns1:RecipientEmailXpath/>
+         <ns1:AttachXMLFlag/>
+         <ns1:XsltWithWrapper>Y</ns1:XsltWithWrapper>
+         <ExternalPtnrDocId xsi:nil="true"/>
+         <ns1:PublicationID/>
+         <ns1:RootElementNamespace/>
+         <ns1:Release/>
+         <ns1:UpgradeCustFlag/>
+         <ns1:PrimaryRecipientFlag/>
+         <ns1:EnableAttachmentFlag/>
+         <ns1:MessageValidationStatus/>
+         <ns1:ValidationStatusDetail/>
+         <ns1:ValidationStatusDescription/>
+         <ns1:AltDeliveryMethodId/>
+         <ns1:AltDelMethodTypeFlag/>
+         <ns1:AltDeliveryMethodType/>
+         <ns1:AltMaxMessageSize/>
+         <ns1:AltUcmExportDocAccount/>
+         <ns1:AltService/>
+         <ns1:AltB2BRoutingFlag/>
+         <ns1:AltAttachXmlFlag/>
+         <ns1:AltRecipientEmailId/>
+         <ns1:AdminConsoleTransactionId>300100682254667</ns1:AdminConsoleTransactionId>
+         <SoldToLE xsi:nil="true"/>
+         <SoldToLEName xsi:nil="true"/>
+         <ns1:AlternateID/>
+         <ns1:SystemID/>
+         <ns1:ReprocessFlowFlag/>
+         <BuyerManagedTransportFlag xsi:nil="true"/>
+         <AgentId xsi:nil="true"/>
+         <AcceptanceRequiredFlag xsi:nil="true"/>
+         <POStatus xsi:nil="true"/>
+         <SupplierAckOptInFlag xsi:nil="true"/>
+         <SupplierPartNumberUpdateFlag xsi:nil="true"/>
+         <ns1:AttachmentsProcessingMethod/>
+         <ns1:Attachments/>
+         <ns1:RefPOLineCount/>
+         <ns1:RefPOSublineCount/>
+         <ns1:PoCoNum/>
+         <ns1:PoRevisionNum/>
+         <ChangeOrderStatus xsi:nil="true"/>
+         <B2BAccountNumberOptInFlag>Y</B2BAccountNumberOptInFlag>
+         <ObjLineXpath xsi:nil="true"/>
+         <ObjSublineXpath xsi:nil="true"/>
+         <ns1:MaxMsgPayloadSize>15</ns1:MaxMsgPayloadSize>
+    	</ns1:ProcessingConfiguration>
+    	<oa:ProcessPurchaseOrder xmlns:oa="http://www.openapplications.org/oagis/10" xmlns="http://xmlns.oracle.com/apps/scm/cmk" xmlns:nsv2="http://xmlns.oracle.com/apps/prc/po/manageDocument/publicModel/viewPdf/v2/" xmlns:cmk="http://xmlns.oracle.com/apps/scm/cmk" xmlns:ns0="http://xmlns.oracle.com/apps/scm/cmk" releaseID="10.1" systemEnvironmentCode="Test">
+			<ApplicationArea xmlns="http://www.openapplications.org/oagis/10">
+				<Sender>
+					<LogicalID schemeID="Name">IND_BOD_TP</LogicalID>
+					<ConfirmationCodes>
+						<ProcessingConfirmationCode/>
+					</ConfirmationCodes>
+					<AuthorizationID xsi:nil="true"/>
+				</Sender>
+				<Intermediary>
+					<LogicalID schemeID=""/>
+					<ReceivedDateTime xsi:nil="true"/>
+				</Intermediary>
+				<Receiver>
+					<LogicalID schemeID=""/>
+				</Receiver>
+				<CreationDateTime>2015-06-22T15:54:40.424-07:00</CreationDateTime>
+				<BODID>7579633</BODID>
+			</ApplicationArea>
+			<oa:DataArea xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns3="http://xmlns.oracle.com/apps/scm/cmk" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+				<oa:Process acknowledgeCode="N"/>
+				<oa:PurchaseOrder typeCode="ORA_BUY">
+					<oa:PurchaseOrderHeader>
+						<oa:ID>CUST_PO_R13V2MIBSCML06_0617_03</oa:ID>
+						<oa:RevisionID>1</oa:RevisionID>
+						<oa:OrderDateTime>2016/06/17 10:10:10</oa:OrderDateTime>
+						<oa:TotalAmount currencyCode="USD"/>
+						<oa:BuyerParty>
+							<oa:Name>Computer Associates International</oa:Name>
+							<oa:BuyerContact>
+								<oa:PersonName>
+									<oa:FormattedName>Jimmy Anderson</oa:FormattedName>
+								</oa:PersonName>
+							</oa:BuyerContact>
+						</oa:BuyerParty>
+						
+					</oa:PurchaseOrderHeader>
+					<oa:PurchaseOrderLine actionCode="">
+						<oa:LineNumberID>101</oa:LineNumberID>
+						<oa:LineIDSet typeCode="ID">
+							<oa:ID typeCode="ID">101</oa:ID>
+							<oa:ID typeCode="Number">1</oa:ID>
+						</oa:LineIDSet>
+						<oa:Item>
+							<oa:SupplierItemIdentification>
+								<oa:ID typeCode="Number">KRM_PTO_HYBRID</oa:ID>
+							</oa:SupplierItemIdentification>
+						</oa:Item>
+						<oa:Quantity unitCode="Ea">11</oa:Quantity>
+						<oa:Party typeCode="BillTo">
+							<oa:Name>Computer Associates International</oa:Name>
+							<oa:Location>
+								<oa:Address>
+									<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+									<oa:CityName>CHATTANOOGA</oa:CityName>
+									<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+									<oa:CountryCode>US</oa:CountryCode>
+									<oa:PostalCode>37401</oa:PostalCode>
+								</oa:Address>
+							</oa:Location>
+							<oa:Contact>
+								<oa:PersonName>
+									<oa:FormattedName>Jimmy Anderson</oa:FormattedName>
+								</oa:PersonName>
+							</oa:Contact>
+						</oa:Party>
+						<oa:ShipToParty>
+							<oa:Name>Computer Associates International</oa:Name>
+							<oa:Location>
+								<oa:Address>
+									<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+									<oa:CityName>CHATTANOOGA</oa:CityName>
+									<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+									<oa:CountryCode>US</oa:CountryCode>
+									<oa:PostalCode>37401</oa:PostalCode>
+								</oa:Address>
+							</oa:Location>
+						</oa:ShipToParty>
+						<oa:PaymentTerm typeCode="PaymentTerm">
+							<oa:Description typeCode="Term">30 Net</oa:Description>
+						</oa:PaymentTerm>
+						<oa:PromisedShipDateTime>2016/06/25 10:10:10</oa:PromisedShipDateTime>
+						<oa:ShipFromParty typeCode="RequestedFulfillmentOrganization">
+							<oa:Location typeCode="RequestedFulfillmentLocation">
+								<oa:ID typeCode="Code">M1</oa:ID>
+							</oa:Location>
+						</oa:ShipFromParty>
+						<oa:PurchaseOrderSubLine actionCode="">
+							<oa:LineNumberID>102</oa:LineNumberID>
+							<oa:LineIDSet typeCode="ID">
+								<oa:ID typeCode="ID">102</oa:ID>
+								<oa:ID typeCode="Number">2</oa:ID>
+							</oa:LineIDSet>
+							<oa:Item>
+								<oa:SupplierItemIdentification>
+									<oa:ID typeCode="Number">OP44136</oa:ID>
+								</oa:SupplierItemIdentification>
+							</oa:Item>
+							<oa:Quantity unitCode="Ea">11</oa:Quantity>
+							<oa:Party typeCode="BillTo">
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+								<oa:Contact>
+									<oa:PersonName>
+										<oa:FormattedName>Jimmy Anderson</oa:FormattedName>
+									</oa:PersonName>
+								</oa:Contact>
+							</oa:Party>
+							<oa:ShipToParty>
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+							</oa:ShipToParty>
+							<oa:PaymentTerm typeCode="PaymentTerm">
+								<oa:Description typeCode="Term">30 Net</oa:Description>
+							</oa:PaymentTerm>
+							<oa:PromisedShipDateTime>2016/06/25 10:10:10</oa:PromisedShipDateTime>
+							<oa:ShipFromParty typeCode="RequestedFulfillmentOrganization">
+								<oa:Location typeCode="RequestedFulfillmentLocation">
+									<oa:ID typeCode="Code">M1</oa:ID>
+								</oa:Location>
+							</oa:ShipFromParty>
+							<oa:Extension typeCode="Fields">
+								<oa:ValueText typeCode="ParentLineReference">101</oa:ValueText>
+							</oa:Extension>
+						</oa:PurchaseOrderSubLine>
+						<oa:PurchaseOrderSubLine actionCode="">
+							<oa:LineNumberID>103</oa:LineNumberID>
+							<oa:LineIDSet typeCode="ID">
+								<oa:ID typeCode="ID">103</oa:ID>
+								<oa:ID typeCode="Number">3</oa:ID>
+							</oa:LineIDSet>
+							<oa:Item>
+								<oa:SupplierItemIdentification>
+									<oa:ID typeCode="Number">KB18761</oa:ID>
+								</oa:SupplierItemIdentification>
+							</oa:Item>
+							<oa:Quantity unitCode="Ea">11</oa:Quantity>
+							<oa:Party typeCode="BillTo">
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+								<oa:Contact>
+									<oa:PersonName>
+										<oa:FormattedName>Jimmy Anderson</oa:FormattedName>
+									</oa:PersonName>
+								</oa:Contact>
+							</oa:Party>
+							<oa:ShipToParty>
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+							</oa:ShipToParty>
+							<oa:PaymentTerm typeCode="PaymentTerm">
+								<oa:Description typeCode="Term">30 Net</oa:Description>
+							</oa:PaymentTerm>
+							<oa:PromisedShipDateTime>2016/06/25 10:10:10</oa:PromisedShipDateTime>
+							<oa:ShipFromParty typeCode="RequestedFulfillmentOrganization">
+								<oa:Location typeCode="RequestedFulfillmentLocation">
+									<oa:ID typeCode="Code">M1</oa:ID>
+								</oa:Location>
+							</oa:ShipFromParty>
+							<oa:Extension typeCode="Fields">
+								<oa:ValueText typeCode="ParentLineReference">102</oa:ValueText>
+							</oa:Extension>
+						</oa:PurchaseOrderSubLine>
+						<oa:PurchaseOrderSubLine actionCode="">
+							<oa:LineNumberID>104</oa:LineNumberID>
+							<oa:LineIDSet typeCode="ID">
+								<oa:ID typeCode="ID">104</oa:ID>
+								<oa:ID typeCode="Number">4</oa:ID>
+							</oa:LineIDSet>
+							<oa:Item>
+								<oa:SupplierItemIdentification>
+									<oa:ID typeCode="Number">VIK_STV_STD_CTM_ATO_MODEL</oa:ID>
+								</oa:SupplierItemIdentification>
+							</oa:Item>
+							<oa:Quantity unitCode="Ea">11</oa:Quantity>
+							<oa:Party typeCode="BillTo">
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+								<oa:Contact>
+									<oa:PersonName>
+										<oa:FormattedName>Jimmy Anderson</oa:FormattedName>
+									</oa:PersonName>
+								</oa:Contact>
+							</oa:Party>
+							<oa:ShipToParty>
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+							</oa:ShipToParty>
+							<oa:PaymentTerm typeCode="PaymentTerm">
+								<oa:Description typeCode="Term">30 Net</oa:Description>
+							</oa:PaymentTerm>
+							<oa:PromisedShipDateTime>2016/06/25 10:10:10</oa:PromisedShipDateTime>
+							<oa:ShipFromParty typeCode="RequestedFulfillmentOrganization">
+								<oa:Location typeCode="RequestedFulfillmentLocation">
+									<oa:ID typeCode="Code">M1</oa:ID>
+								</oa:Location>
+							</oa:ShipFromParty>
+							<oa:Extension typeCode="Fields">
+								<oa:ValueText typeCode="ParentLineReference">101</oa:ValueText>
+							</oa:Extension>
+						</oa:PurchaseOrderSubLine>
+						<oa:PurchaseOrderSubLine actionCode="">
+							<oa:LineNumberID>105</oa:LineNumberID>
+							<oa:LineIDSet typeCode="ID">
+								<oa:ID typeCode="ID">105</oa:ID>
+								<oa:ID typeCode="Number">5</oa:ID>
+							</oa:LineIDSet>
+							<oa:Item>
+								<oa:SupplierItemIdentification>
+									<oa:ID typeCode="Number">OVEN_STYLE_OC</oa:ID>
+								</oa:SupplierItemIdentification>
+							</oa:Item>
+							<oa:Quantity unitCode="Ea">11</oa:Quantity>
+							<oa:Party typeCode="BillTo">
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+								<oa:Contact>
+									<oa:PersonName>
+										<oa:FormattedName>Jimmy Anderson</oa:FormattedName>
+									</oa:PersonName>
+								</oa:Contact>
+							</oa:Party>
+							<oa:ShipToParty>
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+							</oa:ShipToParty>
+							<oa:PaymentTerm typeCode="PaymentTerm">
+								<oa:Description typeCode="Term">30 Net</oa:Description>
+							</oa:PaymentTerm>
+							<oa:PromisedShipDateTime>2016/06/25 10:10:10</oa:PromisedShipDateTime>
+							<oa:ShipFromParty typeCode="RequestedFulfillmentOrganization">
+								<oa:Location typeCode="RequestedFulfillmentLocation">
+									<oa:ID typeCode="Code">M1</oa:ID>
+								</oa:Location>
+							</oa:ShipFromParty>
+							<oa:Extension typeCode="Fields">
+								<oa:ValueText typeCode="ParentLineReference">104</oa:ValueText>
+							</oa:Extension>
+						</oa:PurchaseOrderSubLine>
+						<oa:PurchaseOrderSubLine actionCode="">
+							<oa:LineNumberID>106</oa:LineNumberID>
+							<oa:LineIDSet typeCode="ID">
+								<oa:ID typeCode="ID">106</oa:ID>
+								<oa:ID typeCode="Number">6</oa:ID>
+							</oa:LineIDSet>
+							<oa:Item>
+								<oa:SupplierItemIdentification>
+									<oa:ID typeCode="Number">GAS_OVEN</oa:ID>
+								</oa:SupplierItemIdentification>
+							</oa:Item>
+							<oa:Quantity unitCode="Ea">11</oa:Quantity>
+							<oa:Party typeCode="BillTo">
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+								<oa:Contact>
+									<oa:PersonName>
+										<oa:FormattedName>Jimmy Anderson</oa:FormattedName>
+									</oa:PersonName>
+								</oa:Contact>
+							</oa:Party>
+							<oa:ShipToParty>
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+							</oa:ShipToParty>
+							<oa:PaymentTerm typeCode="PaymentTerm">
+								<oa:Description typeCode="Term">30 Net</oa:Description>
+							</oa:PaymentTerm>
+							<oa:PromisedShipDateTime>2016/06/25 10:10:10</oa:PromisedShipDateTime>
+							<oa:ShipFromParty typeCode="RequestedFulfillmentOrganization">
+								<oa:Location typeCode="RequestedFulfillmentLocation">
+									<oa:ID typeCode="Code">M1</oa:ID>
+								</oa:Location>
+							</oa:ShipFromParty>
+							<oa:Extension typeCode="Fields">
+								<oa:ValueText typeCode="ParentLineReference">105</oa:ValueText>
+							</oa:Extension>
+						</oa:PurchaseOrderSubLine>
+						<oa:PurchaseOrderSubLine actionCode="">
+							<oa:LineNumberID>107</oa:LineNumberID>
+							<oa:LineIDSet typeCode="ID">
+								<oa:ID typeCode="ID">107</oa:ID>
+								<oa:ID typeCode="Number">7</oa:ID>
+							</oa:LineIDSet>
+							<oa:Item>
+								<oa:SupplierItemIdentification>
+									<oa:ID typeCode="Number">STOVE_FINISH_OC</oa:ID>
+								</oa:SupplierItemIdentification>
+							</oa:Item>
+							<oa:Quantity unitCode="Ea">11</oa:Quantity>
+							<oa:Party typeCode="BillTo">
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+								<oa:Contact>
+									<oa:PersonName>
+										<oa:FormattedName>Jimmy Anderson</oa:FormattedName>
+									</oa:PersonName>
+								</oa:Contact>
+							</oa:Party>
+							<oa:ShipToParty>
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+							</oa:ShipToParty>
+							<oa:PaymentTerm typeCode="PaymentTerm">
+								<oa:Description typeCode="Term">30 Net</oa:Description>
+							</oa:PaymentTerm>
+							<oa:PromisedShipDateTime>2016/06/25 10:10:10</oa:PromisedShipDateTime>
+							<oa:ShipFromParty typeCode="RequestedFulfillmentOrganization">
+								<oa:Location typeCode="RequestedFulfillmentLocation">
+									<oa:ID typeCode="Code">M1</oa:ID>
+								</oa:Location>
+							</oa:ShipFromParty>
+							<oa:Extension typeCode="Fields">
+								<oa:ValueText typeCode="ParentLineReference">104</oa:ValueText>
+							</oa:Extension>
+						</oa:PurchaseOrderSubLine>
+						<oa:PurchaseOrderSubLine actionCode="">
+							<oa:LineNumberID>108</oa:LineNumberID>
+							<oa:LineIDSet typeCode="ID">
+								<oa:ID typeCode="ID">108</oa:ID>
+								<oa:ID typeCode="Number">8</oa:ID>
+							</oa:LineIDSet>
+							<oa:Item>
+								<oa:SupplierItemIdentification>
+									<oa:ID typeCode="Number">WH_ENAMEL</oa:ID>
+								</oa:SupplierItemIdentification>
+							</oa:Item>
+							<oa:Quantity unitCode="Ea">11</oa:Quantity>
+							<oa:Party typeCode="BillTo">
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+								<oa:Contact>
+									<oa:PersonName>
+										<oa:FormattedName>Jimmy Anderson</oa:FormattedName>
+									</oa:PersonName>
+								</oa:Contact>
+							</oa:Party>
+							<oa:ShipToParty>
+								<oa:Name>Computer Associates International</oa:Name>
+								<oa:Location>
+									<oa:Address>
+										<oa:AddressLine sequenceNumber="1">102, CityView</oa:AddressLine>
+										<oa:CityName>CHATTANOOGA</oa:CityName>
+										<oa:CountrySubDivisionCode typeCode="State">TN</oa:CountrySubDivisionCode>
+										<oa:CountryCode>US</oa:CountryCode>
+										<oa:PostalCode>37401</oa:PostalCode>
+									</oa:Address>
+								</oa:Location>
+							</oa:ShipToParty>
+							<oa:PaymentTerm typeCode="PaymentTerm">
+								<oa:Description typeCode="Term">30 Net</oa:Description>
+							</oa:PaymentTerm>
+							<oa:PromisedShipDateTime>2016/06/25 10:10:10</oa:PromisedShipDateTime>
+							<oa:ShipFromParty typeCode="RequestedFulfillmentOrganization">
+								<oa:Location typeCode="RequestedFulfillmentLocation">
+									<oa:ID typeCode="Code">M1</oa:ID>
+								</oa:Location>
+							</oa:ShipFromParty>
+							<oa:Extension typeCode="Fields">
+								<oa:ValueText typeCode="ParentLineReference">107</oa:ValueText>
+							</oa:Extension>
+						</oa:PurchaseOrderSubLine>
+					</oa:PurchaseOrderLine>
+				</oa:PurchaseOrder>
+			</oa:DataArea>
+		</oa:ProcessPurchaseOrder>
+   </ns1:InboundCollaborationMessage>
+</processInboundCollaborationMessage>
